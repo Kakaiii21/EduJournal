@@ -1,5 +1,18 @@
 <?php
+/* FOR MANUALLY ADDING ADMIN
 include '../connect.php';
+$pass = password_hash("admin123", PASSWORD_DEFAULT);
+$sql = "INSERT INTO users (fullname, email, password, role)
+        VALUES ('Site Admin', 'admin@school.com', '$pass', 'admin')";
+mysqli_query($con, $sql);
+echo "Admin added!";
+*/ ?>
+
+
+<?php
+session_start();
+include '../connect.php';
+
 if (isset($_POST['submit'])) {
     $email = $_POST['txtemail'];
     $password = $_POST['txtpassword'];
@@ -10,6 +23,11 @@ if (isset($_POST['submit'])) {
     $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
     if ($row && password_verify($password, $row['password'])) {
+        // ✅ Store session variables
+        $_SESSION['user_id'] = $row['user_id'];
+        $_SESSION['fullname'] = $row['fullname'];
+        $_SESSION['role'] = $row['role'];
+
         // login success
         header("Location: ../main.php");
         exit();
@@ -22,11 +40,12 @@ if (isset($_POST['submit'])) {
 }
 ?>
 
+
 <!doctype html>
 <html lang="en">
 
 <head>
-    <title>Threadly - Signup</title>
+    <title>EduJournal</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 

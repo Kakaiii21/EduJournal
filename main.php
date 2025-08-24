@@ -1,14 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+session_start();
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
 
-<body>
-    <h1>shesh gg na</h1>
-</body>
-
-</html>
+// Check role
+if ($_SESSION['role'] === 'admin') {
+    // Admin Dashboard
+    header("Location: admin.php");
+    exit();
+} else {
+    // Student Dashboard
+    header("Location: student.php");
+    exit();
+}

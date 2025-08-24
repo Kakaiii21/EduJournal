@@ -1,5 +1,5 @@
 <?php
-include '../connect.php';
+include 'connect.php';
 
 $usernameError = "";
 $emailError    = "";
@@ -32,7 +32,7 @@ if (isset($_POST['submit'])) {
 
         if ($result) {
             // redirect to main.php
-            header("Location: login.php");
+            header("Location: admin.php?page=users");
             exit();
         } else {
             die(mysqli_error($con));
@@ -46,7 +46,7 @@ if (isset($_POST['submit'])) {
 <html lang="en">
 
 <head>
-    <title>Threadly</title>
+    <title>Add Users</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -100,7 +100,7 @@ if (isset($_POST['submit'])) {
 <body>
     <div class="container">
         <form method="post">
-            <h2>SIGN UP</h2>
+            <h2>ADD USER</h2>
 
             <div class="form-group">
                 <label>Username</label>
@@ -146,9 +146,9 @@ if (isset($_POST['submit'])) {
             </div>
 
 
-            <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" name="submit" class="btn btn-primary">ADD USER</button>
             <br>
-            <p>Already have an account? <a href="login.php">Log In</a></p>
+            <a href="admin.php?page=users">Cancel</a>
         </form>
     </div>
 
