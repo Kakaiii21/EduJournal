@@ -1,5 +1,22 @@
 <?php
 include 'connect.php';
+session_start();
+
+if (empty($_SESSION['user_id'])) {
+    header('Location: authentication/login.php');
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+// get username from database
+$sql = "SELECT username FROM users WHERE user_id = ?";
+$stmt = $con->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stmt->bind_result($username);
+$stmt->fetch();
+$stmt->close();
 ?>
 
 
@@ -182,9 +199,34 @@ include 'connect.php';
         }
 
         .user-container {
-            margin: 100px 20px 20px 50px;
             background-color: white;
             padding: 20px;
+            border-radius: 10px;
+            margin: 30px 20px 20px 50px;
+
+            box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
+
+        }
+
+        /* Change table header background and text color */
+        .table thead th {
+            background-color: #343a40;
+            /* dark gray */
+            color: white;
+            text-align: left;
+            /* optional: center text */
+        }
+
+        .usercon {
+            width: 100%;
+            margin: 100px 20px 20px 50px;
+
+            background-color: white;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 5px 3px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            padding: 10px;
         }
     </style>
 </head>
@@ -195,7 +237,7 @@ include 'connect.php';
         <div class="menu_container">
             <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 200px;">
                 <img src="images/icons/admin.png" height="100px" width="100">
-                <h3 class="mb-4">Admin, Kai</h3>
+                <h3 class="mb-4">Admin, <?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></h3>
             </div>
 
             <div class="menu_btn" onclick="showPage('dashboard')">
@@ -229,6 +271,20 @@ include 'connect.php';
                         </a>
                     </div>
                 </div>
+                <?php
+                // count all users in the users table
+                $sqlUsers = "SELECT COUNT(*) AS total_users FROM users";
+                $resultUsers = mysqli_query($con, $sqlUsers);
+                $rowUsers = mysqli_fetch_assoc($resultUsers);
+                $totalUsers = $rowUsers['total_users'];
+
+
+                $sqlCategory = "SELECT COUNT(*) AS total_categories FROM categories";
+                $resultCategory = mysqli_query($con, $sqlCategory);
+                $rowCategory = mysqli_fetch_assoc($resultCategory);
+                $totalCategory = $rowCategory['total_categories'];
+                ?>
+
                 <div class="card_container">
                     <!-- First row -->
                     <div class="card1_container">
@@ -236,7 +292,7 @@ include 'connect.php';
                             <div class="card-body">
                                 <img src="images/icons/users.png">
                                 <h5 class="card-title">Total Users</h5>
-                                <p class="card-text">120</p>
+                                <p class="card-text"><?php echo $totalUsers; ?></p>
                                 <button class="btnview" onclick="showPage('users')">View All</button>
                             </div>
                         </div>
@@ -273,7 +329,7 @@ include 'connect.php';
                                 <div class="card-body">
                                     <img src="images/icons/category.png">
                                     <h5 class="card-title">Categories</h5>
-                                    <p class="card-text">8</p>
+                                    <p class="card-text"><?php echo $totalCategory ?></p>
                                     <button class="btnview">View All</button>
                                 </div>
                             </div>
@@ -292,7 +348,13 @@ include 'connect.php';
                 <p>All posts will appear here.</p>
             </div>
             <div id="users" style="display:none;">
+                <div class="usercon">
+                    <img src="images/icons/users.png" height="40px">
+                    <h1>Users</h1>
+
+                </div>
                 <div class="user-container">
+
                     <button class="btn btn-primary my-5"><a href="add.php" class="text-light">Add User</a></button>
                     <table class="table">
                         <thead>
@@ -332,7 +394,7 @@ include 'connect.php';
             </td>
             <td>' . $role . '</td>
                             <td>
-                                <button class="btn btn-primary"><a href="update.php" class="text-light">Update</a></button>
+                                <button class="btn btn-primary"><a href="update.php? updateid=' . $id . '" class="text-light">Update</a></button>
 <button class="btn btn-danger">
     <a href="delete.php?deleteid=' . $id . '" 
        class="text-light" 
