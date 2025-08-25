@@ -34,10 +34,12 @@ $resultCategories = mysqli_query($con, $sqlCategories);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
-            background-color: rgba(248, 250, 251, 1);
+            height: 100vh;
             margin: 0;
-            padding: 0;
+            background: #c7d0f8ff;
+
         }
+
 
         .container {
             display: flex;
@@ -45,19 +47,21 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             gap: 20px;
             margin: 50px;
             min-height: 100vh;
+
         }
 
         .left-container {
-            padding: 15px;
-            width: 250px;
-            height: 800px;
+            padding: 5px;
+            width: 350px;
+            height: 900px;
             border-radius: 20px;
-            box-shadow: 0 0px 5px rgba(93, 92, 92, 1);
+            box-shadow: 0 0px 5px rgba(231, 231, 231, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            border-right: 2px solid #ccc;
+            background: #c7d0f8ff;
+
 
             /* Add this */
             position: sticky;
@@ -76,6 +80,17 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             /* optional, ensures consistent spacing */
         }
 
+        .mypost-card {
+            background-color: #fff !important;
+            /* solid white background */
+            border: 1.5px solid #e0e0e0;
+            /* subtle gray border */
+            border-radius: 10px;
+            /* smooth corners */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            /* soft shadow for depth */
+            padding: 15px;
+        }
 
 
         .profile img {
@@ -85,32 +100,82 @@ $resultCategories = mysqli_query($con, $sqlCategories);
 
         .right-container {
             flex: 1;
+            /* take remaining space */
             padding: 20px;
-            margin-right: 200px;
-            margin-left: 100px;
+            max-width: 100%;
+            /* prevent overflow */
         }
 
         .menu_btn {
-            background-color: white;
-            border: 1px solid #ddd;
+            background-color: #f5f5f5;
+
+            border: 1px solid #cdd1f8ff;
             padding: 10px;
+
             text-align: left;
             cursor: pointer;
             transition: 0.2s;
             width: 100%;
             font-family: 'Inter', sans-serif;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            width: 250px;
         }
+
+        .menu_btn {
+            background-color: #ffffff;
+            /* white */
+            color: black;
+            /* text */
+            border: 1px solid #ddd;
+        }
+
+        .menu_btn:hover {
+            background-color: #e0e0e0;
+            /* light gray on hover */
+            /* darker purple on hover */
+        }
+
+        .menu_btn.active {
+            background-color: #919edbff;
+            color: white;
+        }
+
+        .menu_btn.active i {
+            color: white;
+            /* make icon white too */
+        }
+
+
 
         .post-card {
             flex: 1 1 calc(33.33% - 20px);
             min-width: 200px;
             border-radius: 10px;
-            box-shadow: 0 5px 3px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 .9px 1px rgba(0, 0, 0, 0.15);
             height: auto;
-            background-color: #fff;
+            background-color: rgba(255, 218, 218, 1);
             padding: 15px;
+        }
+
+        .post-card.active {
+            background-color: black;
+            color: white;
+        }
+
+        .post-card.active h4,
+        .post-card.active h5,
+        .post-card.active h6,
+        .post-card.active p,
+        .post-card.active small,
+        .post-card.active span {
+            color: white;
+        }
+
+        .post-card.active .like-btn i,
+        .post-card.active .like-btn span {
+            color: white;
         }
 
         .post-card .like-btn {
@@ -146,6 +211,12 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             color: red;
             /* liked color */
         }
+
+        .create-post-container {
+            width: 800px;
+            border-radius: 20px;
+            margin-left: 100px;
+        }
     </style>
 </head>
 
@@ -153,8 +224,9 @@ $resultCategories = mysqli_query($con, $sqlCategories);
     <div class="container">
         <!-- Sidebar -->
         <div class="left-container">
+            <br><br>
             <div class="profile">
-                <img src="images/icons/admin.png" height="100px" width="100px">
+                <img src="images/icons/student.png" height="100px" width="100px">
             </div>
 
 
@@ -164,19 +236,23 @@ $resultCategories = mysqli_query($con, $sqlCategories);
 
 
             <div class="menu_btn" onclick="showPage('feed')">
-                <img src="images/icons/feed.png" height="24"> Feeds
+                <i class="fas fa-newspaper" style="margin-right:8px;"></i> Feeds
             </div>
+
             <div class="menu_btn" onclick="showPage('myposts')">
-                <img src="images/icons/mypost.png" height="24"> My Posts
+                <i class="fas fa-file-alt" style="margin-right:8px;"></i> My Posts
             </div>
+
             <div class="menu_btn" onclick="showPage('write')">
-                <img src="images/icons/write.png" height="24"> Write
+                <i class="fas fa-pen" style="margin-right:8px;"></i> Write
             </div>
+
             <div class="menu_btn">
                 <a href="logout.php" style="text-decoration:none; color:black;">
-                    <img src="images/icons/logout.png" height="24"> Logout
+                    <i class="fas fa-sign-out-alt" style="margin-right:8px;"></i> Logout
                 </a>
             </div>
+
 
         </div>
 
@@ -193,21 +269,36 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             INNER JOIN categories ON posts.category_id = categories.category_id
             WHERE posts.is_featured = true";
             $resultPost = mysqli_query($con, $sqlPost);
+            $colors = ['rgba(231, 237, 248, 1)', 'rgba(254, 245, 221, 1)', 'rgba(218, 255, 218, 1)', 'rgba(255, 218, 218, 1)'];
+            $colorIndex = 0;
+
             ?>
 
             <div id="feed" style="display:block;">
-                <h1>Feeds</h1>
+                <h1 style="font-weight: 700;">Feeds</h1>
+                <br>
 
                 <div class="post-container">
                     <?php
                     if ($resultPost) {
                         while ($row = mysqli_fetch_assoc($resultPost)) {
                             $username = htmlspecialchars($row['username']);
-                            $title = htmlspecialchars($row['title']);
-                            $content = htmlspecialchars($row['content']);
-                            $sended = $row['created_at'];
+                            $title    = htmlspecialchars($row['title']);
+                            $content  = htmlspecialchars($row['content']);
+                            $sended   = $row['created_at'];
+                            $post_id  = $row['post_id'];
+
+                            // Check if current user already liked
+                            $user_id = $_SESSION['user_id'];
+                            $sqlCheck = "SELECT * FROM likes WHERE user_id=$user_id AND post_id=$post_id";
+                            $liked = mysqli_num_rows(mysqli_query($con, $sqlCheck)) > 0;
+                            $likeClass = $liked ? 'fa-solid' : 'fa-regular';
+
+                            // Count likes
+                            $sqlCount = "SELECT COUNT(*) AS total FROM likes WHERE post_id=$post_id";
+                            $likeCount = mysqli_fetch_assoc(mysqli_query($con, $sqlCount))['total'];
                     ?>
-                            <div class="post-card mb-3">
+                            <div class="post-card mb-3" style="background-color: #fff;">
                                 <div class="card-body">
                                     <h5>Author: <?php echo $username; ?></h5>
                                     <h6>Category: <?php echo htmlspecialchars($row['category_name']); ?></h6>
@@ -216,30 +307,20 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                                     <small class="text-muted"><?php echo $sended; ?></small>
 
                                     <!-- Like button -->
-                                    <?php
-                                    // Check if current user already liked
-                                    $user_id = $_SESSION['user_id'];
-                                    $post_id = $row['post_id'];
-                                    $sqlCheck = "SELECT * FROM likes WHERE user_id=$user_id AND post_id=$post_id";
-                                    $liked = mysqli_num_rows(mysqli_query($con, $sqlCheck)) > 0;
-                                    $likeClass = $liked ? 'fa-solid' : 'fa-regular';
-
-                                    // Count likes
-                                    $sqlCount = "SELECT COUNT(*) AS total FROM likes WHERE post_id=$post_id";
-                                    $likeCount = mysqli_fetch_assoc(mysqli_query($con, $sqlCount))['total'];
-                                    ?>
                                     <button class="btn btn-link like-btn">
                                         <i class="fa-heart <?php echo $likeClass; ?>" data-post-id="<?php echo $post_id; ?>"></i>
                                         <span id="like-count-<?php echo $post_id; ?>"><?php echo $likeCount; ?></span>
                                     </button>
                                 </div>
                             </div>
-
                     <?php
                         }
                     }
                     ?>
+
                 </div>
+
+
             </div>
             <?php
             $user_id = intval($_SESSION['user_id']); // ensures it's an integer
@@ -273,7 +354,9 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                             // Convert is_featured to status text
                             $statusText = ($isFeatured == 1) ? 'Approved' : 'Pending';
                     ?>
-                            <div class="post-card mb-3">
+
+
+                            <div class="post-card mypost-card mb-3">
                                 <div class="card-body">
                                     <h5>
                                         Author: <?php echo $username; ?>
@@ -316,7 +399,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
 
             <!-- Write -->
             <div id="write" style="display:none;">
-                <div class="card shadow p-4">
+                <div class="card shadow p-4 create-post-container">
                     <h2 class="mb-4">Create a New Post</h2>
                     <form action="store_post.php" method="POST">
                         <div class="mb-3">
@@ -338,41 +421,56 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                                 <?php } ?>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">Send</button>
+                        <button type="submit" class="btn btn-primary" style="margin-top:20px ;">Send</button>
                     </form>
                 </div>
             </div>
-
         </div>
-    </div>
-    <script>
-        window.onload = function() {
-            if (!<?php echo json_encode(isset($_SESSION['user_id'])); ?>) {
-                window.location.href = "authentication/login.php";
-            }
-        };
 
-        // Prevent going back to cached page
-        window.history.pushState(null, "", window.location.href);
-        window.onpopstate = function() {
+        <script>
+            window.onload = function() {
+                if (!<?php echo json_encode(isset($_SESSION['user_id'])); ?>) {
+                    window.location.href = "authentication/login.php";
+                }
+            };
+
+            // Prevent going back to cached page
             window.history.pushState(null, "", window.location.href);
-        };
-    </script>
+            window.onpopstate = function() {
+                window.history.pushState(null, "", window.location.href);
+            };
+        </script>
+        <script>
+            function showPage(pageId) {
+                const pages = ['feed', 'myposts', 'write'];
+                const buttons = document.querySelectorAll('.menu_btn');
 
-    <script>
-        function showPage(pageId) {
-            const pages = ['feed', 'myposts', 'write'];
-            pages.forEach(id => {
-                document.getElementById(id).style.display = (id === pageId) ? 'block' : 'none';
+                // Show only the selected page
+                pages.forEach(id => {
+                    document.getElementById(id).style.display = (id === pageId) ? 'block' : 'none';
+                });
+
+                // Remove active class from all buttons
+                buttons.forEach(btn => btn.classList.remove('active'));
+
+                // Add active class to the clicked button
+                buttons.forEach(btn => {
+                    const btnPage = btn.getAttribute('onclick'); // e.g., showPage('myposts')
+                    if (btnPage && btnPage.includes(pageId)) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        </script>
+
+
+        <script>
+            // Make 'Feeds' the default active page on load
+            window.addEventListener('DOMContentLoaded', () => {
+                showPage('feed'); // show the feed page
             });
-        }
+        </script>
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const page = urlParams.get("page") || "feed";
-            showPage(page);
-        });
-    </script>
 
 </body>
 <script>

@@ -52,6 +52,8 @@ $resultCategories = mysqli_query($con, $sqlCategories);
     <!-- Bootstrap CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>
@@ -67,14 +69,26 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             /* instead of fixed height */
         }
 
-
         .menu_container {
             background-color: white;
             width: 263px;
             display: flex;
             flex-direction: column;
-            /* stronger shadow */
             box-shadow: 6px 0 12px rgba(0, 0, 0, 0.2);
+
+            position: sticky;
+            /* <-- makes it sticky */
+            top: 0;
+            /* <-- sticks to top when scrolling */
+            height: 100vh;
+            /* full viewport height */
+            overflow-y: auto;
+            /* optional: scroll menu if items overflow */
+        }
+
+        .menu_btn.active {
+            background-color: black;
+            color: white;
         }
 
         .menu_btn {
@@ -304,15 +318,15 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                 <img src="images/icons/dashboard.png" height="24"> Dashboard
             </div>
             <div class="menu_btn" onclick="showPage('posts')">
-                <img src="images/icons/post.png" height="24">
+                <i class="bi bi-file-earmark-text" style="font-size: 24px;"></i>
                 Posts
             </div>
             <div class="menu_btn" onclick="showPage('users')">
-                <img src="images/icons/users.png" height="24">
+                <i class="bi bi-people" style="font-size: 24px;"></i>
                 Users
             </div>
             <div class="menu_btn" onclick="showPage('settings')">
-                <img src="images/icons/settings.png" height="24">
+                <i class="bi bi-gear" style="font-size: 24px;"></i>
                 Settings
             </div>
 
@@ -491,7 +505,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             ?>
 
             <div id="posts" style="display:none;">
-                <div class="penddingcon">
+                <div class="penddingcon" style="width: 800px;">
                     <img src="images/icons/pending.png" height="40px">
                     <h1>Posts</h1>
                 </div>
@@ -774,10 +788,30 @@ $resultCategories = mysqli_query($con, $sqlCategories);
     <script>
         function showPage(pageId) {
             const pages = ['dashboard', 'posts', 'users', 'settings', 'pending', 'app_today', 'approved', 'categories'];
+            const buttons = document.querySelectorAll('.menu_btn');
+
+            // Show/hide pages
             pages.forEach(id => {
                 document.getElementById(id).style.display = (id === pageId) ? 'block' : 'none';
             });
+
+            // Update active button
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            const activeBtn = Array.from(buttons).find(btn => btn.textContent.trim().toLowerCase() === pageId);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
         }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const page = urlParams.get("page") || "dashboard"; // default = dashboard
+            showPage(page);
+        });
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
