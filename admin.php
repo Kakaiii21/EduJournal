@@ -17,8 +17,20 @@ $stmt->execute();
 $stmt->bind_result($username);
 $stmt->fetch();
 $stmt->close();
-?>
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
+    $post_id = intval($_POST['post_id']);
+
+    $sqlApp = "UPDATE posts SET is_featured = 1 WHERE post_id = $post_id";
+    if (mysqli_query($con, $sqlApp)) {
+        header("Location: admin.php?page=pending&approved=1");
+        exit();
+    } else {
+        echo "Error: " . mysqli_error($con);
+        exit();
+    }
+}
+?>
 
 <!doctype html>
 <html lang="en">
@@ -39,7 +51,8 @@ $stmt->close();
 
         .main_container {
             display: flex;
-            height: 100vh;
+            min-height: 100vh;
+            /* instead of fixed height */
         }
 
 
@@ -208,6 +221,28 @@ $stmt->close();
 
         }
 
+        .pending-container {
+            width: 700px;
+
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 20px 20px 50px;
+
+
+        }
+
+        .penddingcon {
+            width: 100%;
+            margin: 30px 20px 20px 50px;
+
+            background-color: white;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 5px 3px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
         /* Change table header background and text color */
         .table thead th {
             background-color: #343a40;
@@ -219,7 +254,7 @@ $stmt->close();
 
         .usercon {
             width: 100%;
-            margin: 100px 20px 20px 50px;
+            margin: 30px 20px 20px 50px;
 
             background-color: white;
             display: flex;
@@ -227,6 +262,19 @@ $stmt->close();
             box-shadow: 0 5px 3px rgba(0, 0, 0, 0.15);
             border-radius: 8px;
             padding: 10px;
+        }
+
+        .post-card {
+            flex: 1 1 calc(33.33% - 20px);
+            min-width: 200px;
+            border-radius: 10px;
+            box-shadow: 0 5px 3px rgba(0, 0, 0, 0.15);
+            height: auto;
+            /* auto-adjusts to content */
+            background-color: #fff;
+            /* optional for clarity */
+            padding: 15px;
+            /* spacing inside */
         }
     </style>
 </head>
@@ -255,6 +303,7 @@ $stmt->close();
                 <img src="images/icons/settings.png" height="24">
                 Settings
             </div>
+
         </div>
 
         <!-- Board Container -->
@@ -283,7 +332,30 @@ $stmt->close();
                 $resultCategory = mysqli_query($con, $sqlCategory);
                 $rowCategory = mysqli_fetch_assoc($resultCategory);
                 $totalCategory = $rowCategory['total_categories'];
+
+
+                $sqlapproved  = "SELECT COUNT(*) AS total_approved FROM posts where is_featured = true";
+                $resultApproved = mysqli_query($con, $sqlapproved);
+                $rowApproved = mysqli_fetch_assoc($resultApproved);
+                $totalApproved = $rowApproved['total_approved'];
+
+
+                $sqlPendding = "SELECT COUNT(*) AS total_pendding FROM posts where is_featured = false";
+                $resultPendding = mysqli_query($con, $sqlPendding);
+                $rowPendding = mysqli_fetch_assoc($resultPendding);
+                $totalPendding = $rowPendding['total_pendding'];
+
+                $sqlTodayApproved = "
+    SELECT COUNT(*) AS total_today_approved 
+    FROM posts 
+    WHERE is_featured = true 
+    AND DATE(created_at) = CURDATE()
+";
+                $resultTodayApproved = mysqli_query($con, $sqlTodayApproved);
+                $rowTodayApproved = mysqli_fetch_assoc($resultTodayApproved);
+                $totalTodayApproved = $rowTodayApproved['total_today_approved'];
                 ?>
+
 
                 <div class="card_container">
                     <!-- First row -->
@@ -300,16 +372,16 @@ $stmt->close();
                             <div class="card-body">
                                 <img src="images/icons/post.png">
                                 <h5 class="card-title">Posts Approved</h5>
-                                <p class="card-text">138</p>
-                                <button class="btnview" onclick="showPage('posts')">View All</button>
+                                <p class="card-text"><?php echo $totalApproved ?></p>
+                                <button class="btnview" onclick="showPage('approved')">View All</button>
                             </div>
                         </div>
                         <div class="card">
                             <div class="card-body">
                                 <img src="images/icons/pending.png" height="48px">
                                 <h5 class="card-title">Pending Posts</h5>
-                                <p class="card-text">138</p>
-                                <button class="btnview">View All</button>
+                                <p class="card-text"><?php echo $totalPendding ?></p>
+                                <button class="btnview" onclick="showPage('pending')">View All</button>
                             </div>
                         </div>
                     </div>
@@ -320,8 +392,8 @@ $stmt->close();
                             <div class="card-body">
                                 <img src="images/icons/approved.png">
                                 <h5 class="card-title">Approved Today</h5>
-                                <p class="card-text">120</p>
-                                <button class="btnview">View All</button>
+                                <p class="card-text"><?php echo $totalTodayApproved ?></p>
+                                <button class="btnview" onclick="showPage('app_today')">View All</button>
                             </div>
                         </div>
                         <div class="card">
@@ -343,9 +415,45 @@ $stmt->close();
 
 
             </div>
+
+
+
+            <?php
+            $sqlPost = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username FROM posts
+            INNER JOIN users ON posts.user_id = users.user_id
+            WHERE posts.is_featured = true";
+            $resultPost = mysqli_query($con, $sqlPost);
+            ?>
+
             <div id="posts" style="display:none;">
-                <h1>Posts</h1>
-                <p>All posts will appear here.</p>
+                <div class="penddingcon">
+                    <img src="images/icons/pending.png" height="40px">
+                    <h1>Posts</h1>
+                </div>
+                <div class="pending-container">
+                    <?php
+                    if ($resultPost) {
+                        while ($row = mysqli_fetch_assoc($resultPost)) {
+                            $id       = $row['post_id'];
+                            $title    = $row['title'];
+                            $content  = $row['content'];
+                            $sended   = $row['created_at'];
+                            $username = $row['username'];
+                    ?>
+                            <div class="post-card mb-3">
+                                <div class="card-body">
+                                    <h5><?php echo htmlspecialchars($username); ?></h5>
+                                    <h4 class="card-title"><?php echo htmlspecialchars($title); ?></h4>
+                                    <p class="card-text"><?php echo htmlspecialchars($content); ?></p>
+                                    <small class="text-muted"><?php echo $sended; ?></small>
+
+                                </div>
+                            </div>
+                    <?php
+                        }
+                    }
+                    ?>
+                </div>
             </div>
             <div id="users" style="display:none;">
                 <div class="usercon">
@@ -383,29 +491,27 @@ $stmt->close();
                                     $role = $row['role'];
 
                                     echo '
-        <tr>
-            <th scope="row">' . $id . '</th>
-            <td>' . $name . '</td>
-            <td>' . $email . '</td>
-            <td>
-                <span class="password-mask" style="display:none;">' . $password . '</span>
-                <span class="password-dots">******</span>
-                <button type="button" class="btn btn-sm btn-link toggle-password">Show</button>
-            </td>
-            <td>' . $role . '</td>
-                            <td>
+                                <tr>
+                                <th scope="row">' . $id . '</th>
+                                <td>' . $name . '</td>
+                                <td>' . $email . '</td>
+                                <td>
+                                <span class="password-mask" style="display:none;">' . $password . '</span>
+                                <span class="password-dots">******</span>
+                                <button type="button" class="btn btn-sm btn-link toggle-password">Show</button>
+                                </td>
+                                <td>' . $role . '</td>
+                                <td>
                                 <button class="btn btn-primary"><a href="crud_admin/update.php? updateid=' . $id . '" class="text-light">Update</a></button>
-<button class="btn btn-danger">
-    <a href="crud_admin/delete.php?deleteid=' . $id . '" 
-       class="text-light" 
-       onclick="return confirm(\'Are you sure you want to delete this user?\')">
-       Delete
-    </a>
-</button>
-                            </td>
+                                <button class="btn btn-danger">
+                                <a href="crud_admin/delete.php?deleteid=' . $id . '" class="text-light" onclick="return confirm(\'Are you sure you want to delete this user?\')">
+                                Delete
+                                </a>
+                                </button>
+                                </td>
 
            
-        </tr>';
+                                </tr>';
                                 }
                             }
                             ?>
@@ -428,9 +534,142 @@ $stmt->close();
             </div>
 
 
+            <?php
+            $sqlPend = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username FROM posts
+            INNER JOIN users ON posts.user_id = users.user_id
+            WHERE posts.is_featured = false";
+            $resultPend = mysqli_query($con, $sqlPend);
+            ?>
+
+            <div id="pending" style="display:none;">
+                <div class="penddingcon">
+                    <img src="images/icons/pending.png" height="40px">
+                    <h1>Pending Posts</h1>
+                </div>
+                <div class="pending-container">
+                    <?php
+                    if ($resultPend) {
+                        while ($row = mysqli_fetch_assoc($resultPend)) {
+                            $id       = $row['post_id'];
+                            $title    = $row['title'];
+                            $content  = $row['content'];
+                            $sended   = $row['created_at'];
+                            $username = $row['username'];
+                    ?>
+                            <div class="post-card mb-3">
+                                <div class="card-body">
+                                    <h5><?php echo htmlspecialchars($username); ?></h5>
+                                    <h4 class="card-title"><?php echo htmlspecialchars($title); ?></h4>
+                                    <p class="card-text"><?php echo htmlspecialchars($content); ?></p>
+                                    <small class="text-muted"><?php echo $sended; ?></small>
+
+                                    <form method="POST" style="margin-top:10px;">
+                                        <input type="hidden" name="post_id" value="<?php echo $id; ?>">
+                                        <button type="submit" class="btn btn-success">Approve</button>
+                                    </form>
+                                </div>
+                            </div>
+                    <?php
+                        }
+                    }
+                    ?>
+                </div>
+            </div>
+            <?php
+            $sqlApp = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username, categories.name AS category_name FROM posts
+            INNER JOIN users ON posts.user_id = users.user_id
+            LEFT JOIN post_categories ON posts.post_id = post_categories.post_id
+            LEFT JOIN categories ON post_categories.category_id = categories.category_id
+            WHERE posts.is_featured = true";
+
+            $resultApp = mysqli_query($con, $sqlApp);
+            ?>
+
+            <div id="approved" style="display:none;">
+                <div class="penddingcon">
+                    <img src="images/icons/pending.png" height="40px">
+                    <h1>Approved Posts</h1>
+                </div>
+                <div class="pending-container">
+                    <?php
+                    if ($resultApp) {
+                        while ($row = mysqli_fetch_assoc($resultApp)) {
+                            $id       = $row['post_id'];
+                            $title    = $row['title'];
+                            $content  = $row['content'];
+                            $sended   = $row['created_at'];
+                            $username = $row['username'];
+                    ?>
+                            <div class="post-card mb-3">
+                                <div class="card-body">
+                                    <h5><?php echo htmlspecialchars($username); ?></h5>
+                                    <h4 class="card-title"><?php echo htmlspecialchars($title); ?></h4>
+                                    <h6 class="text-primary">
+                                        Category: <?php echo htmlspecialchars($row['category_name'] ?? 'Uncategorized'); ?>
+                                    </h6>
+
+                                    <p class="card-text"><?php echo htmlspecialchars($content); ?></p>
+                                    <small class="text-muted"><?php echo $sended; ?></small>
+
+                                </div>
+                            </div>
+                    <?php
+                        }
+                    }
+                    ?>
+                </div>
+            </div>
+            <?php
+            $sqlAppT = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username FROM posts
+            INNER JOIN users ON posts.user_id = users.user_id
+            WHERE posts.is_featured = 1 
+            AND DATE(posts.created_at) = CURDATE()";
+
+            $resultAppT = mysqli_query($con, $sqlAppT);
+            ?>
+
+            <div id="app_today" style="display:none;">
+                <div class="penddingcon">
+                    <img src="images/icons/pending.png" height="40px">
+                    <h1>Approved Today</h1>
+                </div>
+                <div class="pending-container">
+                    <?php
+                    if ($resultAppT && mysqli_num_rows($resultAppT) > 0) {
+                        while ($row = mysqli_fetch_assoc($resultAppT)) {
+                            $id       = $row['post_id'];
+                            $title    = $row['title'];
+                            $content  = $row['content'];
+                            $sended   = $row['created_at'];
+                            $username = $row['username'];
+                    ?>
+                            <div class="post-card mb-3">
+                                <div class="card-body">
+                                    <h5><?php echo htmlspecialchars($username); ?></h5>
+                                    <h4 class="card-title"><?php echo htmlspecialchars($title); ?></h4>
+                                    <p class="card-text"><?php echo htmlspecialchars($content); ?></p>
+                                    <small class="text-muted"><?php echo $sended; ?></small>
+                                </div>
+                            </div>
+                    <?php
+                        }
+                    } else {
+                        echo "<p>No posts approved today.</p>";
+                    }
+                    ?>
+                </div>
+            </div>
+
+
+
+
+
 
         </div>
     </div>
+
+
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             document.querySelectorAll(".toggle-password").forEach(function(btn) {
@@ -455,15 +694,12 @@ $stmt->close();
 
     <script>
         function showPage(pageId) {
-            const pages = ['dashboard', 'posts', 'users', 'settings'];
+            const pages = ['dashboard', 'posts', 'users', 'settings', 'pending', 'app_today', 'approved'];
             pages.forEach(id => {
                 document.getElementById(id).style.display = (id === pageId) ? 'block' : 'none';
             });
         }
     </script>
-
-
-    //para marecognize na dito magreredirect
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -471,6 +707,17 @@ $stmt->close();
             showPage(page);
         });
     </script>
+
+    <script>
+        /*para marecognize na dito magreredirect*/
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const page = urlParams.get("page") || "dashboard"; // default = dashboard
+            showPage(page);
+        });
+    </script>
+
 
 
 
