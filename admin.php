@@ -38,6 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
         exit();
     }
 }
+
+$sqlCategories = "SELECT * FROM categories";
+$resultCategories = mysqli_query($con, $sqlCategories);
+
 ?>
 
 <!doctype html>
@@ -230,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
         }
 
         .pending-container {
-            width: 700px;
+            width: 800px;
 
             padding: 20px;
             border-radius: 10px;
@@ -411,7 +415,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
                                     <img src="images/icons/category.png">
                                     <h5 class="card-title">Categories</h5>
                                     <p class="card-text"><?php echo $totalCategory ?></p>
-                                    <button class="btnview">View All</button>
+                                    <button class="btnview" onclick="showPage('categories')">View All</button>
                                 </div>
                             </div>
                         </div>
@@ -423,6 +427,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
 
 
 
+            </div>
+
+            <div id="categories" style="display:none;">
+                <div class="usercon">
+                    <img src="images/icons/category.png" height="40px">
+                    <h1>Categories</h1>
+                </div>
+                <div class="user-container">
+                    <!-- Add Category Button -->
+                    <button class="btn btn-primary my-3">
+                        <a href="crud_category/add_category.php" class="text-light">Add Category</a>
+                    </button>
+
+                    <!-- Categories Table -->
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Category ID</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            if ($resultCategories) {
+                                while ($row = mysqli_fetch_assoc($resultCategories)) {
+                                    $id = $row['category_id'];
+                                    $name = $row['name'];
+                                    $description = $row['description'];
+
+                                    echo '
+                        <tr>
+                            <th scope="row">' . $id . '</th>
+                            <td>' . htmlspecialchars($name) . '</td>
+                            <td>' . htmlspecialchars($description) . '</td>
+                           <td>
+                                <button class="btn btn-danger">
+                                     <a href="crud_category/delete_category.php?deleteid=' . $id . '" class="text-light" 
+                                        onclick="return confirm(\'Are you sure you want to delete this category?\')">
+                                         Delete
+                                    </a>
+                                </button>
+                            </td>
+
+                        </tr>';
+                                }
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
 
@@ -717,7 +773,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
 
     <script>
         function showPage(pageId) {
-            const pages = ['dashboard', 'posts', 'users', 'settings', 'pending', 'app_today', 'approved'];
+            const pages = ['dashboard', 'posts', 'users', 'settings', 'pending', 'app_today', 'approved', 'categories'];
             pages.forEach(id => {
                 document.getElementById(id).style.display = (id === pageId) ? 'block' : 'none';
             });

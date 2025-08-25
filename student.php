@@ -50,6 +50,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
         .left-container {
             padding: 15px;
             width: 250px;
+            height: 800px;
             border-radius: 20px;
             box-shadow: 0 0px 5px rgba(93, 92, 92, 1);
             display: flex;
@@ -57,7 +58,24 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             align-items: center;
             text-align: center;
             border-right: 2px solid #ccc;
+
+            /* Add this */
+            position: sticky;
+            top: 20px;
+            /* adjust distance from top when scrolling */
+
         }
+
+        .post-card .card-title {
+            margin-bottom: 20px;
+            /* space between title and content */
+        }
+
+        .post-card .card-text {
+            margin-top: 0;
+            /* optional, ensures consistent spacing */
+        }
+
 
 
         .profile img {
@@ -223,11 +241,78 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                     ?>
                 </div>
             </div>
+            <?php
+            $user_id = intval($_SESSION['user_id']); // ensures it's an integer
+            $sqlMyPost = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username, categories.name AS category_name, posts.is_featured
+            FROM posts
+            INNER JOIN users ON posts.user_id = users.user_id
+            INNER JOIN categories ON posts.category_id = categories.category_id
+            WHERE posts.user_id = $user_id
+            ORDER BY posts.created_at DESC";
+            $resultMyPost = mysqli_query($con, $sqlMyPost);
+            ?>
 
-            <!-- My Posts -->
             <div id="myposts" style="display:none;">
                 <h1>My Posts</h1>
+                <div class="post-container">
+                    <?php
+                    if ($resultMyPost && mysqli_num_rows($resultMyPost) > 0) {
+                        while ($rowPost = mysqli_fetch_assoc($resultMyPost)) {
+                            $title = htmlspecialchars($rowPost['title']);
+                            $content = htmlspecialchars($rowPost['content']);
+                            $username = htmlspecialchars($rowPost['username']);
+                            $category = htmlspecialchars($rowPost['category_name']);
+                            $sended = $rowPost['created_at'];
+                            $isFeatured = $rowPost['is_featured']; // 1 or 0
+                            $post_id = $rowPost['post_id'];
+
+                            $liked = mysqli_num_rows(mysqli_query($con, "SELECT * FROM likes WHERE user_id=$user_id AND post_id=$post_id")) > 0;
+                            $likeClass = $liked ? 'fa-solid' : 'fa-regular';
+                            $likeCount = mysqli_fetch_assoc(mysqli_query($con, "SELECT COUNT(*) AS total FROM likes WHERE post_id=$post_id"))['total'];
+
+                            // Convert is_featured to status text
+                            $statusText = ($isFeatured == 1) ? 'Approved' : 'Pending';
+                    ?>
+                            <div class="post-card mb-3">
+                                <div class="card-body">
+                                    <h5>
+                                        Author: <?php echo $username; ?>
+                                        <?php if ($isFeatured == 0) { ?>
+                                            <span style="color: orange; font-weight: bold; margin-left: 10px;">[Pending]</span>
+                                        <?php } else { ?>
+                                            <span style="color: green; font-weight: bold; margin-left: 10px;">[Approved]</span>
+                                        <?php } ?>
+                                    </h5>
+                                    <h6>Category: <?php echo $category; ?></h6>
+                                    <h4 class="card-title"><?php echo $title; ?></h4>
+                                    <p class="card-text"><?php echo $content; ?></p>
+                                    <small class="text-muted"><?php echo $sended; ?></small>
+
+                                    <button class="btn btn-link like-btn">
+                                        <i class="fa-heart <?php echo $likeClass; ?>" data-post-id="<?php echo $post_id; ?>"></i>
+                                        <span id="like-count-<?php echo $post_id; ?>"><?php echo $likeCount; ?></span>
+                                    </button>
+
+                                    <!-- Delete button -->
+                                    <form action="delete_post.php" method="POST" style="display:inline-block; margin-left:10px;">
+                                        <input type="hidden" name="post_id" value="<?php echo $post_id; ?>">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this post?');">Delete</button>
+                                    </form>
+
+                                </div>
+                            </div>
+
+                    <?php
+                        }
+                    } else {
+                        echo "<p>No posts yet.</p>";
+                    }
+                    ?>
+                </div>
             </div>
+
+
+
 
             <!-- Write -->
             <div id="write" style="display:none;">
