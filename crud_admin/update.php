@@ -1,14 +1,21 @@
 <?php
-include 'connect.php';
-
+include '../connect.php';
+$id = $_GET['updateid'];
 $usernameError = "";
 $emailError    = "";
+
+// 🔹 Fetch existing user details first
+$sql    = "SELECT * FROM users WHERE user_id=$id";
+$result = mysqli_query($con, $sql);
+$row    = mysqli_fetch_assoc($result);
+
+$existingName  = $row['username'];
+$existingEmail = $row['email'];
 
 if (isset($_POST['submit'])) {
     $name     = $_POST['txtname'];
     $email    = $_POST['txtemail'];
     $password = $_POST['txtpassword'];
-    $role     = $_POST['txtrole']; // ✅ new role field
 
     // check if username exists
     $checkUser  = "SELECT * FROM users WHERE username='$name'";
@@ -25,15 +32,15 @@ if (isset($_POST['submit'])) {
     } else {
         // hash password before saving
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        //hashed password here
 
-        // insert new user with role
-        $sql = "INSERT INTO users (username, email, password, role) 
-                VALUES('$name', '$email', '$hashedPassword', '$role')";
+        $sql = "update `users` set user_id=$id, username = '$name', email = '$email', password = '$hashedPassword'
+        where user_id = $id";
         $result = mysqli_query($con, $sql);
 
         if ($result) {
             // redirect to main.php
-            header("Location: admin.php?page=users");
+            header("Location: ../admin.php?page=users");
             exit();
         } else {
             die(mysqli_error($con));
@@ -43,11 +50,12 @@ if (isset($_POST['submit'])) {
 ?>
 
 
+
 <!doctype html>
 <html lang="en">
 
 <head>
-    <title>Add Users</title>
+    <title>Threadly</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -101,7 +109,7 @@ if (isset($_POST['submit'])) {
 <body>
     <div class="container">
         <form method="post">
-            <h2>ADD USER</h2>
+            <h2>UPDATE USER</h2>
 
             <div class="form-group">
                 <label>Username</label>
@@ -112,7 +120,7 @@ if (isset($_POST['submit'])) {
                     class="form-control <?php echo !empty($usernameError) ? 'is-invalid' : ''; ?>"
                     name="txtname"
                     required
-                    value="<?php echo isset($name) ? htmlspecialchars($name) : ''; ?>">
+                    value="<?php echo isset($name) ? htmlspecialchars($name) : htmlspecialchars($existingName); ?>">
                 <?php if (!empty($usernameError)) { ?>
                     <div class="invalid-feedback"><?php echo $usernameError; ?></div>
                 <?php } ?>
@@ -127,11 +135,12 @@ if (isset($_POST['submit'])) {
                     class="form-control <?php echo !empty($emailError) ? 'is-invalid' : ''; ?>"
                     name="txtemail"
                     required
-                    value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>">
+                    value="<?php echo isset($email) ? htmlspecialchars($email) : htmlspecialchars($existingEmail); ?>">
                 <?php if (!empty($emailError)) { ?>
                     <div class="invalid-feedback"><?php echo $emailError; ?></div>
                 <?php } ?>
             </div>
+
 
             <div class="form-group">
                 <label>Password</label>
@@ -145,18 +154,10 @@ if (isset($_POST['submit'])) {
                     autocomplete="off">
             </div>
 
-            <!-- ✅ New Role Selector -->
-            <div class="form-group">
-                <label>Role</label>
-                <select class="form-control" name="txtrole" required>
-                    <option value="student">Student</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
 
-            <button type="submit" name="submit" class="btn btn-primary">ADD USER</button>
+            <button type="submit" name="submit" class="btn btn-primary">Update</button>
             <br>
-            <p><a href="admin.php?page=users">Cancel</a></p>
+            <p><a href="../admin.php?page=users">Cancel</a></p>
         </form>
     </div>
 

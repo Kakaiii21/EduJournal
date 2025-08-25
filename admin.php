@@ -355,7 +355,7 @@ $stmt->close();
                 </div>
                 <div class="user-container">
 
-                    <button class="btn btn-primary my-5"><a href="add.php" class="text-light">Add User</a></button>
+                    <button class="btn btn-primary my-5"><a href="crud_admin/add.php" class="text-light">Add User</a></button>
                     <table class="table">
                         <thead>
                             <tr>
@@ -394,9 +394,9 @@ $stmt->close();
             </td>
             <td>' . $role . '</td>
                             <td>
-                                <button class="btn btn-primary"><a href="update.php? updateid=' . $id . '" class="text-light">Update</a></button>
+                                <button class="btn btn-primary"><a href="crud_admin/update.php? updateid=' . $id . '" class="text-light">Update</a></button>
 <button class="btn btn-danger">
-    <a href="delete.php?deleteid=' . $id . '" 
+    <a href="crud_admin/delete.php?deleteid=' . $id . '" 
        class="text-light" 
        onclick="return confirm(\'Are you sure you want to delete this user?\')">
        Delete
