@@ -1,11 +1,19 @@
 <?php
+
 include 'connect.php';
 session_start();
 
+
 if (empty($_SESSION['user_id'])) {
-    header('Location: authentication/login.php');
+    header("Location: authentication/login.php");
     exit();
 }
+
+// Prevent browser from caching this page
+header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1
+header("Pragma: no-cache"); // HTTP 1.0
+header("Expires: 0"); // Proxies
+
 
 $user_id = $_SESSION['user_id'];
 
@@ -314,7 +322,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
                     <h1>Dashboard</h1>
                     <div class="logout_container">
                         <img src="images/icons/logout.png" height="30px">
-                        <a href="authentication/login.php"
+
+                        <a href="logout.php"
                             style="color: rgba(168, 0, 0, 1); font-size: 20px; font-family: 'Poppins', sans-serif; font-weight: 500; margin-left: 5px;">
                             Log Out
                         </a>
@@ -691,6 +700,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
             });
         });
     </script>
+    <script>
+        window.onload = function() {
+            if (!<?php echo json_encode(isset($_SESSION['user_id'])); ?>) {
+                window.location.href = "authentication/login.php";
+            }
+        };
+
+        // Prevent going back to cached page
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+    </script>
+
 
     <script>
         function showPage(pageId) {

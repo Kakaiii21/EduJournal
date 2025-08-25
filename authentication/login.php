@@ -6,7 +6,8 @@ $sql = "INSERT INTO users (fullname, email, password, role)
         VALUES ('Site Admin', 'admin@school.com', '$pass', 'admin')";
 mysqli_query($con, $sql);
 echo "Admin added!";
-*/ ?>
+*/
+?>
 
 
 <?php
@@ -26,7 +27,7 @@ if (isset($_POST['submit'])) {
     if ($row && password_verify($password, $row['password'])) {
         // ✅ Store session variables
         $_SESSION['user_id'] = $row['user_id'];
-        $_SESSION['fullname'] = $row['fullname'];
+        $_SESSION['username'] = $row['username'];
         $_SESSION['role'] = $row['role'];
 
         // login success

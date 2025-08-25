@@ -1,10 +1,13 @@
 <?php
+
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: authentication/login.php");
     exit();
 }
+
+
 
 // Check role
 if ($_SESSION['role'] === 'admin') {
