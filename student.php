@@ -15,7 +15,18 @@ header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1
 header("Pragma: no-cache"); // HTTP 1.0
 header("Expires: 0"); // Proxies
 
-
+// If editing a post
+$editingPost = false;
+if (isset($_GET['post_id'])) {
+    $post_id = intval($_GET['post_id']);
+    $user_id = intval($_SESSION['user_id']);
+    $sql = "SELECT * FROM posts WHERE post_id = $post_id AND user_id = $user_id";
+    $result = mysqli_query($con, $sql);
+    if ($result && mysqli_num_rows($result) > 0) {
+        $post = mysqli_fetch_assoc($result);
+        $editingPost = true;
+    }
+}
 // Fetch categories for the dropdown
 $sqlCategories = "SELECT * FROM categories";
 $resultCategories = mysqli_query($con, $sqlCategories);
@@ -36,7 +47,8 @@ $resultCategories = mysqli_query($con, $sqlCategories);
         body {
             height: 100vh;
             margin: 0;
-            background: #c7d0f8ff;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            /* soft blue/gray gradient */
 
         }
 
@@ -60,7 +72,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             flex-direction: column;
             align-items: center;
             text-align: center;
-            background: #c7d0f8ff;
+            background: #ffffff;
 
 
             /* Add this */
@@ -132,13 +144,14 @@ $resultCategories = mysqli_query($con, $sqlCategories);
         }
 
         .menu_btn:hover {
-            background-color: #e0e0e0;
+            background-color: #4a90e2;
+            color: white;
             /* light gray on hover */
             /* darker purple on hover */
         }
 
         .menu_btn.active {
-            background-color: #919edbff;
+            background-color: #4a90e2;
             color: white;
         }
 
@@ -263,14 +276,13 @@ $resultCategories = mysqli_query($con, $sqlCategories);
 
             <!-- Feed -->
             <?php
-            $sqlPost = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username, categories.name AS category_name
-            FROM posts
-            INNER JOIN users ON posts.user_id = users.user_id
-            INNER JOIN categories ON posts.category_id = categories.category_id
-            WHERE posts.is_featured = 'approved'";
+            $sqlPost = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username, categories.name AS category_name FROM posts
+                        INNER JOIN users ON posts.user_id = users.user_id
+                        INNER JOIN categories ON posts.category_id = categories.category_id
+                        WHERE posts.is_featured = 'approved'
+                        ORDER BY posts.created_at DESC";
+
             $resultPost = mysqli_query($con, $sqlPost);
-            $colors = ['rgba(231, 237, 248, 1)', 'rgba(254, 245, 221, 1)', 'rgba(218, 255, 218, 1)', 'rgba(255, 218, 218, 1)'];
-            $colorIndex = 0;
 
             ?>
 
@@ -394,9 +406,10 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                                     </form>
 
                                     <?php if ($isFeatured === 'draft') { ?>
-                                        <a href="post_edit.php?post_id=<?php echo $post_id; ?>" class="btn btn-warning btn-sm" style="margin-left:10px;">
+                                        <a href="student.php?post_id=<?php echo $post_id; ?>" class="btn btn-warning btn-sm" style="margin-left:10px;">
                                             Edit
                                         </a>
+
                                     <?php } ?>
 
                                 </div>
@@ -446,53 +459,91 @@ $resultCategories = mysqli_query($con, $sqlCategories);
 
                 </div>
             </div>
+            <?php if ($editingPost) { ?>
+                <div id="edit" style="display:block;">
+                    <div class="card shadow p-4 create-post-container">
+                        <h2 class="mb-4">Edit Post</h2>
+                        <form action="update_post.php" method="POST">
+                            <input type="hidden" name="post_id" value="<?php echo $post['post_id']; ?>">
+
+                            <div class="mb-3">
+                                <label class="form-label">Post Title</label>
+                                <input type="text" name="title" class="form-control" value="<?php echo htmlspecialchars($post['title']); ?>" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Content</label>
+                                <textarea name="content" rows="5" class="form-control" required><?php echo htmlspecialchars($post['content']); ?></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Category</label>
+                                <select name="category_id" class="form-select" required>
+                                    <option value="">-- Select Category --</option>
+                                    <?php
+                                    mysqli_data_seek($resultCategories, 0);
+                                    while ($row = mysqli_fetch_assoc($resultCategories)) { ?>
+                                        <option value="<?php echo $row['category_id']; ?>" <?php echo ($row['category_id'] == $post['category_id']) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($row['name']); ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                            <button type="submit" name="action" value="publish" class="btn btn-primary" style="margin-top:20px;">Publish</button>
+                            <button type="submit" name="action" value="draft" class="btn btn-secondary" style="margin-top:20px;">Save as Draft</button>
+                        </form>
+                    </div>
+                </div>
+            <?php } ?>
 
         </div>
 
+    </div>
 
-        <script>
-            window.onload = function() {
-                if (!<?php echo json_encode(isset($_SESSION['user_id'])); ?>) {
-                    window.location.href = "authentication/login.php";
-                }
-            };
 
-            // Prevent going back to cached page
-            window.history.pushState(null, "", window.location.href);
-            window.onpopstate = function() {
-                window.history.pushState(null, "", window.location.href);
-            };
-        </script>
-        <script>
-            function showPage(pageId) {
-                const pages = ['feed', 'myposts', 'write'];
-                const buttons = document.querySelectorAll('.menu_btn');
-
-                // Show only the selected page
-                pages.forEach(id => {
-                    document.getElementById(id).style.display = (id === pageId) ? 'block' : 'none';
-                });
-
-                // Remove active class from all buttons
-                buttons.forEach(btn => btn.classList.remove('active'));
-
-                // Add active class to the clicked button
-                buttons.forEach(btn => {
-                    const btnPage = btn.getAttribute('onclick'); // e.g., showPage('myposts')
-                    if (btnPage && btnPage.includes(pageId)) {
-                        btn.classList.add('active');
-                    }
-                });
+    <script>
+        window.onload = function() {
+            if (!<?php echo json_encode(isset($_SESSION['user_id'])); ?>) {
+                window.location.href = "authentication/login.php";
             }
-        </script>
+        };
 
+        // Prevent going back to cached page
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+    </script>
+    <script>
+        function showPage(pageId) {
+            const pages = ['feed', 'myposts', 'write', 'edit'];
+            const buttons = document.querySelectorAll('.menu_btn');
 
-        <script>
-            // Make 'Feeds' the default active page on load
-            window.addEventListener('DOMContentLoaded', () => {
-                showPage('feed'); // show the feed page
+            // Show only the selected page
+            pages.forEach(id => {
+                document.getElementById(id).style.display = (id === pageId) ? 'block' : 'none';
             });
-        </script>
+
+            // Remove active class from all buttons
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Add active class to the clicked button
+            buttons.forEach(btn => {
+                const btnPage = btn.getAttribute('onclick'); // e.g., showPage('myposts')
+                if (btnPage && btnPage.includes(pageId)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+    </script>
+
+
+    <script>
+        // Make 'Feeds' the default active page on load
+        window.addEventListener('DOMContentLoaded', () => {
+            showPage('feed'); // show the feed page
+        });
+    </script>
 
 
 </body>
@@ -541,6 +592,18 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             showPage('myposts');
         } else {
             showPage('feed'); // default
+        }
+    });
+</script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('post_id')) {
+            showPage('edit'); // Show the edit form
+        } else if (params.get('myposts') === '1') {
+            showPage('myposts');
+        } else {
+            showPage('feed'); // Default
         }
     });
 </script>

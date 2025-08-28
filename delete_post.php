@@ -11,15 +11,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
     $post_id = intval($_POST['post_id']);
     $user_id = intval($_SESSION['user_id']);
 
-    // Ensure user owns the post
-    $sqlCheck = "SELECT * FROM posts WHERE post_id = $post_id AND user_id = $user_id";
-    $resultCheck = mysqli_query($con, $sqlCheck);
+    // If you want admins to delete any post:
+    $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 
-    if (mysqli_num_rows($resultCheck) > 0) {
-        // Delete post
-        $sqlDelete = "DELETE FROM posts WHERE post_id = $post_id";
-        mysqli_query($con, $sqlDelete);
+    // First delete all likes for this post
+    $stmtLikes = $con->prepare("DELETE FROM likes WHERE post_id = ?");
+    $stmtLikes->bind_param("i", $post_id);
+    $stmtLikes->execute();
+    $stmtLikes->close();
+
+    // Now delete the post
+    if ($isAdmin) {
+        $stmt = $con->prepare("DELETE FROM posts WHERE post_id = ?");
+        $stmt->bind_param("i", $post_id);
+    } else {
+        $stmt = $con->prepare("DELETE FROM posts WHERE post_id = ? AND user_id = ?");
+        $stmt->bind_param("ii", $post_id, $user_id);
     }
+
+    if ($stmt->execute()) {
+        $_SESSION['message'] = "Post and its likes deleted successfully.";
+    } else {
+        $_SESSION['message'] = "Failed to delete post. Try again.";
+    }
+
+    $stmt->close();
 }
 
 // Redirect back to My Posts tab
