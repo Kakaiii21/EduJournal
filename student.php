@@ -137,11 +137,34 @@ $resultCategories = mysqli_query($con, $sqlCategories);
 
         .menu_btn {
             background-color: #ffffff;
-            /* white */
-            color: black;
-            /* text */
             border: 1px solid #ddd;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            height: 50px;
+            /* fixed height */
+            display: flex;
+            /* use flex to center content */
+            align-items: center;
+            /* vertical center */
+            padding: 0 10px;
+            /* horizontal padding only */
         }
+
+        .menu_btn a {
+            display: flex;
+            /* flex so icon + text align */
+            align-items: center;
+            /* vertically center icon and text */
+            width: 100%;
+            height: 100%;
+            /* fill parent height */
+            text-decoration: none;
+            color: inherit;
+        }
+
+
+
 
         .menu_btn:hover {
             background-color: #4a90e2;
@@ -234,6 +257,8 @@ $resultCategories = mysqli_query($con, $sqlCategories);
 </head>
 
 <body>
+
+
     <div class="container">
         <!-- Sidebar -->
         <div class="left-container">
@@ -242,23 +267,34 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                 <img src="images/icons/student.png" height="100px" width="100px">
             </div>
 
-
-            <p style="font-size: 20px;">
-                Welcome <?php echo htmlspecialchars($_SESSION['username'] ?? 'Student'); ?>
-            </p>
-
-
-            <div class="menu_btn" onclick="showPage('feed')">
-                <i class="fas fa-newspaper" style="margin-right:8px;"></i> Feeds
+            <div style="line-height: 1.2; margin: 0; padding: 0;">
+                <p style="font-size: 20px; margin: 0;">
+                    <?php echo htmlspecialchars($_SESSION['username'] ?? 'Student'); ?>
+                </p>
+                <p style="margin-top: 3; font-size: 14px; color: #555;">
+                    Student
+                </p>
             </div>
 
-            <div class="menu_btn" onclick="showPage('myposts')">
-                <i class="fas fa-file-alt" style="margin-right:8px;"></i> My Posts
+
+            <div class="menu_btn <?php echo isset($_GET['feed']) ? 'active' : ''; ?>">
+                <a href="student.php?feed=1" style="text-decoration:none; color:inherit;">
+                    <i class="fas fa-newspaper" style="margin-right:8px;"></i> Feeds
+                </a>
             </div>
 
-            <div class="menu_btn" onclick="showPage('write')">
-                <i class="fas fa-pen" style="margin-right:8px;"></i> Write
+            <div class="menu_btn <?php echo isset($_GET['myposts']) ? 'active' : ''; ?>">
+                <a href="student.php?myposts=1" style="text-decoration:none; color:inherit;">
+                    <i class="fas fa-file-alt" style="margin-right:8px;"></i> My Posts
+                </a>
             </div>
+
+            <div class="menu_btn <?php echo isset($_GET['write']) ? 'active' : ''; ?>">
+                <a href="student.php?write=1" style="text-decoration:none; color:inherit;">
+                    <i class="fas fa-pen" style="margin-right:8px;"></i> Write
+                </a>
+            </div>
+
 
             <div class="menu_btn">
                 <a href="logout.php" style="text-decoration:none; color:black;">
@@ -453,7 +489,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                         </div>
 
                         <!-- Publish and Draft buttons -->
-                        <button type="submit" name="action" value="publish" class="btn btn-primary" style="margin-top:20px;">Publish</button>
+                        <button type="submit" name="action" value="publish" class="btn btn-primary" style="margin-top:20px;">Send</button>
                         <button type="submit" name="action" value="draft" class="btn btn-secondary" style="margin-top:20px;">Save as Draft</button>
                     </form>
 
@@ -489,7 +525,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                                     <?php } ?>
                                 </select>
                             </div>
-                            <button type="submit" name="action" value="publish" class="btn btn-primary" style="margin-top:20px;">Publish</button>
+                            <button type="submit" name="action" value="publish" class="btn btn-primary" style="margin-top:20px;">Send</button>
                             <button type="submit" name="action" value="draft" class="btn btn-secondary" style="margin-top:20px;">Save as Draft</button>
                         </form>
                     </div>
@@ -517,33 +553,15 @@ $resultCategories = mysqli_query($con, $sqlCategories);
     <script>
         function showPage(pageId) {
             const pages = ['feed', 'myposts', 'write', 'edit'];
-            const buttons = document.querySelectorAll('.menu_btn');
 
             // Show only the selected page
             pages.forEach(id => {
                 document.getElementById(id).style.display = (id === pageId) ? 'block' : 'none';
             });
-
-            // Remove active class from all buttons
-            buttons.forEach(btn => btn.classList.remove('active'));
-
-            // Add active class to the clicked button
-            buttons.forEach(btn => {
-                const btnPage = btn.getAttribute('onclick'); // e.g., showPage('myposts')
-                if (btnPage && btnPage.includes(pageId)) {
-                    btn.classList.add('active');
-                }
-            });
         }
     </script>
 
 
-    <script>
-        // Make 'Feeds' the default active page on load
-        window.addEventListener('DOMContentLoaded', () => {
-            showPage('feed'); // show the feed page
-        });
-    </script>
 
 
 </body>
@@ -576,36 +594,19 @@ $resultCategories = mysqli_query($con, $sqlCategories);
 </script>
 <script>
     window.addEventListener('DOMContentLoaded', () => {
-        // Show My Posts if redirected from update_post.php
         const params = new URLSearchParams(window.location.search);
-        if (params.get('myposts') === '1') {
-            showPage('myposts');
-        } else {
-            showPage('feed'); // default
-        }
-    });
-</script>
-<script>
-    window.addEventListener('DOMContentLoaded', () => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('myposts') === '1') {
-            showPage('myposts');
-        } else {
-            showPage('feed'); // default
-        }
-    });
-</script>
-<script>
-    window.addEventListener('DOMContentLoaded', () => {
-        const params = new URLSearchParams(window.location.search);
+
         if (params.get('post_id')) {
-            showPage('edit'); // Show the edit form
+            showPage('edit'); // If editing
         } else if (params.get('myposts') === '1') {
-            showPage('myposts');
+            showPage('myposts'); // My Posts tab
+        } else if (params.get('write') === '1') {
+            showPage('write'); // Write tab
         } else {
-            showPage('feed'); // Default
+            showPage('feed'); // Default is Feed
         }
     });
 </script>
+
 
 </html>

@@ -885,50 +885,40 @@ WHERE posts.is_featured = 'denied'";
 
 
     <script>
+        // Show the correct page based on URL ?page=...
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const page = urlParams.get("page") || "dashboard"; // default page
+            showPage(page);
+        });
+
+        // Function to switch visible page
         function showPage(pageId) {
             const pages = ['dashboard', 'posts', 'users', 'settings', 'pending', 'app_today', 'approved', 'categories', 'denied'];
             const buttons = document.querySelectorAll('.menu_btn');
 
             // Show/hide pages
             pages.forEach(id => {
-                document.getElementById(id).style.display = (id === pageId) ? 'block' : 'none';
+                const el = document.getElementById(id);
+                if (el) el.style.display = (id === pageId) ? 'block' : 'none';
             });
 
-            // Update active button
+            // Highlight active menu button
+            buttons.forEach(btn => btn.classList.remove('active'));
             buttons.forEach(btn => {
-                btn.classList.remove('active');
+                if (btn.textContent.trim().toLowerCase() === pageId.toLowerCase()) {
+                    btn.classList.add('active');
+                }
             });
 
-            const activeBtn = Array.from(buttons).find(btn => btn.textContent.trim().toLowerCase() === pageId);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
+            // Update URL without reloading
+            const newUrl = window.location.origin + window.location.pathname + '?page=' + pageId;
+            window.history.pushState({
+                page: pageId
+            }, '', newUrl);
         }
     </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const page = urlParams.get("page") || "dashboard"; // default = dashboard
-            showPage(page);
-        });
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const page = urlParams.get("page") || "dashboard"; // default = dashboard
-            showPage(page);
-        });
-    </script>
 
-    <script>
-        /*para marecognize na dito magreredirect*/
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const page = urlParams.get("page") || "dashboard"; // default = dashboard
-            showPage(page);
-        });
-    </script>
 
 
 
