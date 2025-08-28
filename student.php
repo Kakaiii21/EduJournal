@@ -267,7 +267,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             FROM posts
             INNER JOIN users ON posts.user_id = users.user_id
             INNER JOIN categories ON posts.category_id = categories.category_id
-            WHERE posts.is_featured = true";
+            WHERE posts.is_featured = 'approved'";
             $resultPost = mysqli_query($con, $sqlPost);
             $colors = ['rgba(231, 237, 248, 1)', 'rgba(254, 245, 221, 1)', 'rgba(218, 255, 218, 1)', 'rgba(255, 218, 218, 1)'];
             $colorIndex = 0;
@@ -344,7 +344,21 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                             $username = htmlspecialchars($rowPost['username']);
                             $category = htmlspecialchars($rowPost['category_name']);
                             $sended = $rowPost['created_at'];
-                            $isFeatured = $rowPost['is_featured']; // 1 or 0
+                            $isFeatured = $rowPost['is_featured']; // 'pending', 'approved', or 'draft'
+
+                            // Choose color and label depending on value
+                            if ($isFeatured === 'approved') {
+                                $statusLabel = "<span style='color: green; font-weight: bold; margin-left: 10px;'>[Approved]</span>";
+                            } elseif ($isFeatured === 'pending') {
+                                $statusLabel = "<span style='color: orange; font-weight: bold; margin-left: 10px;'>[Pending]</span>";
+                            } elseif ($isFeatured === 'draft') {
+                                $statusLabel = "<span style='color: gray; font-weight: bold; margin-left: 10px;'>[Draft]</span>";
+                            } elseif ($isFeatured === 'denied') {
+                                $statusLabel = "<span style='color: red; font-weight: bold; margin-left: 10px;'>[Denied]</span>";
+                            } else {
+                                $statusLabel = "";
+                            }
+
                             $post_id = $rowPost['post_id'];
 
                             $liked = mysqli_num_rows(mysqli_query($con, "SELECT * FROM likes WHERE user_id=$user_id AND post_id=$post_id")) > 0;
@@ -360,12 +374,9 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                                 <div class="card-body">
                                     <h5>
                                         Author: <?php echo $username; ?>
-                                        <?php if ($isFeatured == 0) { ?>
-                                            <span style="color: orange; font-weight: bold; margin-left: 10px;">[Pending]</span>
-                                        <?php } else { ?>
-                                            <span style="color: green; font-weight: bold; margin-left: 10px;">[Approved]</span>
-                                        <?php } ?>
+                                        <?php echo $statusLabel; ?>
                                     </h5>
+
                                     <h6>Category: <?php echo $category; ?></h6>
                                     <h4 class="card-title"><?php echo $title; ?></h4>
                                     <p class="card-text"><?php echo $content; ?></p>
@@ -381,6 +392,12 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                                         <input type="hidden" name="post_id" value="<?php echo $post_id; ?>">
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this post?');">Delete</button>
                                     </form>
+
+                                    <?php if ($isFeatured === 'draft') { ?>
+                                        <a href="post_edit.php?post_id=<?php echo $post_id; ?>" class="btn btn-warning btn-sm" style="margin-left:10px;">
+                                            Edit
+                                        </a>
+                                    <?php } ?>
 
                                 </div>
                             </div>
@@ -421,11 +438,17 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                                 <?php } ?>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary" style="margin-top:20px ;">Send</button>
+
+                        <!-- Publish and Draft buttons -->
+                        <button type="submit" name="action" value="publish" class="btn btn-primary" style="margin-top:20px;">Publish</button>
+                        <button type="submit" name="action" value="draft" class="btn btn-secondary" style="margin-top:20px;">Save as Draft</button>
                     </form>
+
                 </div>
             </div>
+
         </div>
+
 
         <script>
             window.onload = function() {
@@ -498,6 +521,27 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                     }
                 });
         });
+    });
+</script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        // Show My Posts if redirected from update_post.php
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('myposts') === '1') {
+            showPage('myposts');
+        } else {
+            showPage('feed'); // default
+        }
+    });
+</script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('myposts') === '1') {
+            showPage('myposts');
+        } else {
+            showPage('feed'); // default
+        }
     });
 </script>
 

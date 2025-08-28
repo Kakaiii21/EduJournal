@@ -25,19 +25,45 @@ $stmt->execute();
 $stmt->bind_result($username);
 $stmt->fetch();
 $stmt->close();
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
     $post_id = intval($_POST['post_id']);
 
-    $sqlApp = "UPDATE posts SET is_featured = 1 WHERE post_id = $post_id";
-    if (mysqli_query($con, $sqlApp)) {
-        header("Location: admin.php?page=pending&approved=1");
-        exit();
-    } else {
-        echo "Error: " . mysqli_error($con);
-        exit();
+    if (isset($_POST['approve'])) {
+        // Approve the post
+        $sqlApp = "UPDATE posts SET is_featured = 'approved' WHERE post_id = $post_id";
+        if (mysqli_query($con, $sqlApp)) {
+            // Insert into post_categories if needed
+            $sqlGetCat = "SELECT category_id FROM posts WHERE post_id = $post_id";
+            $resCat = mysqli_query($con, $sqlGetCat);
+            if ($resCat && mysqli_num_rows($resCat) > 0) {
+                $rowCat = mysqli_fetch_assoc($resCat);
+                $category_id = $rowCat['category_id'];
+
+                if (!empty($category_id)) {
+                    $sqlInsert = "INSERT INTO post_categories (post_id, category_id) VALUES ($post_id, $category_id)";
+                    mysqli_query($con, $sqlInsert);
+                }
+            }
+
+            header("Location: admin.php?page=pending&approved=1");
+            exit();
+        } else {
+            echo "Error: " . mysqli_error($con);
+            exit();
+        }
+    } elseif (isset($_POST['deny'])) {
+        // Deny the post
+        $sqlDeny = "UPDATE posts SET is_featured = 'denied' WHERE post_id = $post_id";
+        if (mysqli_query($con, $sqlDeny)) {
+            header("Location: admin.php?page=pending&denied=1");
+            exit();
+        } else {
+            echo "Error: " . mysqli_error($con);
+            exit();
+        }
     }
 }
+
 
 $sqlCategories = "SELECT * FROM categories";
 $resultCategories = mysqli_query($con, $sqlCategories);
@@ -361,13 +387,13 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                 $totalCategory = $rowCategory['total_categories'];
 
 
-                $sqlapproved  = "SELECT COUNT(*) AS total_approved FROM posts where is_featured = true";
+                $sqlapproved  = "SELECT COUNT(*) AS total_approved FROM posts where is_featured = 'approved'";
                 $resultApproved = mysqli_query($con, $sqlapproved);
                 $rowApproved = mysqli_fetch_assoc($resultApproved);
                 $totalApproved = $rowApproved['total_approved'];
 
 
-                $sqlPendding = "SELECT COUNT(*) AS total_pendding FROM posts where is_featured = false";
+                $sqlPendding = "SELECT COUNT(*) AS total_pendding FROM posts where is_featured = 'pending'";
                 $resultPendding = mysqli_query($con, $sqlPendding);
                 $rowPendding = mysqli_fetch_assoc($resultPendding);
                 $totalPendding = $rowPendding['total_pendding'];
@@ -375,7 +401,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                 $sqlTodayApproved = "
     SELECT COUNT(*) AS total_today_approved 
     FROM posts 
-    WHERE is_featured = true 
+    WHERE is_featured = 'approved' 
     AND DATE(created_at) = CURDATE()
 ";
                 $resultTodayApproved = mysqli_query($con, $sqlTodayApproved);
@@ -500,7 +526,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             <?php
             $sqlPost = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username FROM posts
             INNER JOIN users ON posts.user_id = users.user_id
-            WHERE posts.is_featured = true";
+            WHERE posts.is_featured = 'approved'";
             $resultPost = mysqli_query($con, $sqlPost);
             ?>
 
@@ -521,7 +547,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                     ?>
                             <div class="post-card mb-3">
                                 <div class="card-body">
-                                    <h5><?php echo htmlspecialchars($username); ?></h5>
+                                    <h5>Author: <?php echo htmlspecialchars($row['username']); ?></h5>
                                     <h4 class="card-title"><?php echo htmlspecialchars($title); ?></h4>
                                     <p class="card-text"><?php echo htmlspecialchars($content); ?></p>
                                     <small class="text-muted"><?php echo $sended; ?></small>
@@ -616,7 +642,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             <?php
             $sqlPend = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username FROM posts
             INNER JOIN users ON posts.user_id = users.user_id
-            WHERE posts.is_featured = false";
+            WHERE posts.is_featured = 'pending'";
             $resultPend = mysqli_query($con, $sqlPend);
             ?>
 
@@ -642,10 +668,14 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                                     <p class="card-text"><?php echo htmlspecialchars($content); ?></p>
                                     <small class="text-muted"><?php echo $sended; ?></small>
 
-                                    <form method="POST" style="margin-top:10px;">
+                                    <form method="POST" style="margin-top:10px; display:flex; gap:10px;">
                                         <input type="hidden" name="post_id" value="<?php echo $id; ?>">
-                                        <button type="submit" class="btn btn-success">Approve</button>
+                                        <button type="submit" name="approve" class="btn btn-success">Approve</button>
+                                        <button type="submit" name="deny" class="btn btn-danger"
+                                            onclick="return confirm('Are you sure you want to deny this post?')">Deny</button>
                                     </form>
+
+
                                 </div>
                             </div>
                     <?php
@@ -659,7 +689,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             INNER JOIN users ON posts.user_id = users.user_id
             LEFT JOIN post_categories ON posts.post_id = post_categories.post_id
             LEFT JOIN categories ON post_categories.category_id = categories.category_id
-            WHERE posts.is_featured = true";
+            WHERE posts.is_featured = 'approved'";
 
             $resultApp = mysqli_query($con, $sqlApp);
             ?>
@@ -681,7 +711,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                     ?>
                             <div class="post-card mb-3">
                                 <div class="card-body">
-                                    <h5><?php echo htmlspecialchars($username); ?></h5>
+                                    <h5>Author: <?php echo htmlspecialchars($row['username']); ?></h5>
                                     <h4 class="card-title"><?php echo htmlspecialchars($title); ?></h4>
                                     <h6 class="text-primary">
                                         Category: <?php echo htmlspecialchars($row['category_name'] ?? 'Uncategorized'); ?>
@@ -701,7 +731,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
             <?php
             $sqlAppT = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username FROM posts
             INNER JOIN users ON posts.user_id = users.user_id
-            WHERE posts.is_featured = 1 
+            WHERE posts.is_featured = 'approved'
             AND DATE(posts.created_at) = CURDATE()";
 
             $resultAppT = mysqli_query($con, $sqlAppT);

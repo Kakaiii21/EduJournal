@@ -22,5 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
     }
 }
 
-header("Location: student.php?page=myposts"); // redirect back to My Posts
+// Redirect back to My Posts tab
+header("Location: student.php?myposts=1");
 exit();

@@ -13,5 +13,5 @@ if (isset($_GET['deleteid'])) {
     mysqli_query($con, "DELETE FROM users WHERE user_id = $user_id");
 }
 
-header("Location: ../admin.php");
+header("Location: ../admin.php?page=users");
 exit();

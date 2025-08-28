@@ -62,7 +62,7 @@ if (isset($_POST['submit'])) {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(to bottom right, #fdfbfb, #ebedee);
+            background: linear-gradient(135deg, #c7d0f8ff, #f1e8faff);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
