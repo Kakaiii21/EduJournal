@@ -45,10 +45,10 @@ $resultCategories = mysqli_query($con, $sqlCategories);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
-            height: 100vh;
             margin: 0;
             background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-            /* soft blue/gray gradient */
+            min-height: 100vh;
+            /* ensures at least full screen height */
 
         }
 

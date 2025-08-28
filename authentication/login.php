@@ -53,7 +53,7 @@ if (isset($_POST['submit'])) {
 
     <style>
         body {
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             display: flex;
             align-items: center;
