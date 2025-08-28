@@ -1,0 +1,11 @@
+Explanation of Relationships
+
+1.Users → Posts: A user can create multiple posts (1:N).
+
+2.Users → Likes: A user can like multiple posts (1:N).
+
+3.Posts → Likes: A post can have many likes (1:N).
+
+4.Posts → Post_Categories: Many-to-many relationship between posts and categories.
+
+5.Categories → Post_Categories: Many-to-many relationship; a category can have multiple posts.
