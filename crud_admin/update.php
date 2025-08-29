@@ -13,33 +13,46 @@ $existingName  = $row['username'];
 $existingEmail = $row['email'];
 
 if (isset($_POST['submit'])) {
-    $name     = $_POST['txtname'];
-    $email    = $_POST['txtemail'];
-    $password = $_POST['txtpassword'];
+    $name     = trim($_POST['txtname']);
+    $email    = trim($_POST['txtemail']);
+    $password = trim($_POST['txtpassword']);
 
-    // check if username exists
-    $checkUser  = "SELECT * FROM users WHERE username='$name'";
-    $resultUser = mysqli_query($con, $checkUser);
+    // Build update query dynamically
+    $updates = [];
 
-    // check if email exists
-    $checkEmail  = "SELECT * FROM users WHERE email='$email'";
-    $resultEmail = mysqli_query($con, $checkEmail);
+    // Check username only if it's changed
+    if ($name && $name !== $existingName) {
+        $checkUser  = "SELECT * FROM users WHERE username='$name' AND user_id != $id";
+        $resultUser = mysqli_query($con, $checkUser);
+        if (mysqli_num_rows($resultUser) > 0) {
+            $usernameError = "This username is already taken.";
+        } else {
+            $updates[] = "username='$name'";
+        }
+    }
 
-    if (mysqli_num_rows($resultUser) > 0) {
-        $usernameError = "This username is already taken.";
-    } elseif (mysqli_num_rows($resultEmail) > 0) {
-        $emailError = "This email is already registered.";
-    } else {
-        // hash password before saving
+    // Check email only if it's changed
+    if ($email && $email !== $existingEmail) {
+        $checkEmail  = "SELECT * FROM users WHERE email='$email' AND user_id != $id";
+        $resultEmail = mysqli_query($con, $checkEmail);
+        if (mysqli_num_rows($resultEmail) > 0) {
+            $emailError = "This email is already registered.";
+        } else {
+            $updates[] = "email='$email'";
+        }
+    }
+
+    // Update password only if user changed it from placeholder
+    if (!empty($password) && $password !== '********') {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        //hashed password here
+        $updates[] = "password='$hashedPassword'";
+    }
 
-        $sql = "update `users` set user_id=$id, username = '$name', email = '$email', password = '$hashedPassword'
-        where user_id = $id";
+    // Execute update if no errors and at least one field is changed
+    if (empty($usernameError) && empty($emailError) && count($updates) > 0) {
+        $sql = "UPDATE users SET " . implode(", ", $updates) . " WHERE user_id=$id";
         $result = mysqli_query($con, $sql);
-
         if ($result) {
-            // redirect to main.php
             header("Location: ../admin.php?page=users");
             exit();
         } else {
@@ -48,8 +61,6 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
-
-
 
 <!doctype html>
 <html lang="en">
@@ -67,7 +78,6 @@ if (isset($_POST['submit'])) {
     <style>
         body {
             background: #f8f9fa;
-            /* light gray background */
         }
 
         .container {
@@ -113,13 +123,9 @@ if (isset($_POST['submit'])) {
 
             <div class="form-group">
                 <label>Username</label>
-                <input
-                    type="text"
-                    autocomplete="off"
-                    placeholder="Enter Username"
+                <input type="text" autocomplete="off" placeholder="Enter Username"
                     class="form-control <?php echo !empty($usernameError) ? 'is-invalid' : ''; ?>"
-                    name="txtname"
-                    required
+                    name="txtname" required
                     value="<?php echo isset($name) ? htmlspecialchars($name) : htmlspecialchars($existingName); ?>">
                 <?php if (!empty($usernameError)) { ?>
                     <div class="invalid-feedback"><?php echo $usernameError; ?></div>
@@ -128,32 +134,21 @@ if (isset($_POST['submit'])) {
 
             <div class="form-group">
                 <label>Email Address</label>
-                <input
-                    type="email"
-                    autocomplete="off"
-                    placeholder="Enter Email Address"
+                <input type="email" autocomplete="off" placeholder="Enter Email Address"
                     class="form-control <?php echo !empty($emailError) ? 'is-invalid' : ''; ?>"
-                    name="txtemail"
-                    required
+                    name="txtemail" required
                     value="<?php echo isset($email) ? htmlspecialchars($email) : htmlspecialchars($existingEmail); ?>">
                 <?php if (!empty($emailError)) { ?>
                     <div class="invalid-feedback"><?php echo $emailError; ?></div>
                 <?php } ?>
             </div>
 
-
             <div class="form-group">
                 <label>Password</label>
-                <input
-                    type="password"
-                    placeholder="Enter Password"
-                    class="form-control"
-                    name="txtpassword"
-                    minlength="8"
-                    required
-                    autocomplete="off">
+                <input type="password" placeholder="Enter Password" class="form-control"
+                    name="txtpassword" minlength="8" required autocomplete="off" value="********">
+                <small class="form-text text-muted text-center">Leave as is to keep existing password</small>
             </div>
-
 
             <button type="submit" name="submit" class="btn btn-primary">Update</button>
             <br>
