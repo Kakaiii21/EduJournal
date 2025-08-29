@@ -1,5 +1,7 @@
 <?php
 
+use Dom\Mysql;
+
 include 'connect.php';
 session_start();
 
@@ -572,7 +574,6 @@ WHERE posts.is_featured = 'denied'";
                 </div>
             </div>
 
-
             <?php
             $sqlPost = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username FROM posts
             INNER JOIN users ON posts.user_id = users.user_id
@@ -625,9 +626,28 @@ WHERE posts.is_featured = 'denied'";
                     <h1>Users</h1>
 
                 </div>
+
+                <?php
+                $sqlAdmin = "SELECT COUNT(*) as total_admin from users where role = 'admin'";
+                $resultAdmin = mysqli_query($con, $sqlAdmin);
+                $rowAdmin = mysqli_fetch_assoc($resultAdmin);
+                $totalAdmin = $rowAdmin['total_admin'];
+
+                $sqlStudent = "SELECT COUNT(*) as total_student from users where role = 'student'";
+                $resultStudent = mysqli_query($con, $sqlStudent);
+                $rowStudent = mysqli_fetch_assoc($resultStudent);
+                $totalStudent = $rowStudent['total_student'];
+                ?>
+
+
+
                 <div class="user-container">
 
-                    <button class="btn btn-primary my-5"><a href="crud_admin/add.php" class="text-light">Add User</a></button>
+                    <button class="btn btn-primary my-2"><a href="crud_admin/add.php" class="text-light">Add User</a></button>
+                    <h3><?php echo "Total Users: $totalUsers" ?></h3>
+                    <p style="font-size: 20px;"><?php echo "Total Admin: $totalAdmin     |   Total Student: $totalStudent" ?></p>
+                    <br>
+
                     <table class="table">
                         <thead>
                             <tr>
@@ -691,10 +711,6 @@ WHERE posts.is_featured = 'denied'";
             <div id="settings" style="display:none;">
                 <h1>Settings</h1>
                 <p>Change admin panel settings here.</p>
-            </div>
-
-            <div id="students-new" style="display: none;">
-                <h1>add users</h1>
             </div>
 
 
