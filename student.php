@@ -312,24 +312,60 @@ $resultCategories = mysqli_query($con, $sqlCategories);
 
             <!-- Feed -->
             <?php
-            $sqlPost = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username, categories.name AS category_name FROM posts
+            $sqlPost1 = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username, categories.name AS category_name FROM posts
                         INNER JOIN users ON posts.user_id = users.user_id
                         INNER JOIN categories ON posts.category_id = categories.category_id
                         WHERE posts.is_featured = 'approved'
                         ORDER BY posts.created_at DESC";
 
-            $resultPost = mysqli_query($con, $sqlPost);
+            $resultPost1 = mysqli_query($con, $sqlPost1);
+
+            $selectedCategory1 = isset($_GET['category']) ? intval($_GET['category']) : 0;
+
+            $sqlPost1 = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, 
+                   users.username, categories.name AS category_name 
+            FROM posts
+            INNER JOIN users ON posts.user_id = users.user_id
+            INNER JOIN categories ON posts.category_id = categories.category_id
+            WHERE posts.is_featured = 'approved'";
+
+            if ($selectedCategory1 > 0) {
+                $sqlPost1 .= " AND posts.category_id = $selectedCategory1";
+            }
+
+            $sqlPost1 .= " ORDER BY posts.created_at DESC";
+
+            $resultPost1 = mysqli_query($con, $sqlPost1);
+
 
             ?>
 
             <div id="feed" style="display:block;">
-                <h1 style="font-weight: 700;">Feeds</h1>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1 style="font-weight: 700; margin:0;">Feeds</h1>
+                    <form method="GET" action="student.php" style="width:250px;">
+                        <input type="hidden" name="feed" value="1">
+                        <select name="category" class="form-select" onchange="this.form.submit()">
+                            <option value="0">-- All Categories --</option>
+                            <?php
+                            mysqli_data_seek($resultCategories, 0); // reset pointer
+                            while ($cat = mysqli_fetch_assoc($resultCategories)) {
+                                $selected1 = ($selectedCategory1 == $cat['category_id']) ? 'selected' : '';
+                                echo "<option value='{$cat['category_id']}' $selected1>" . htmlspecialchars($cat['name']) . "</option>";
+                            }
+
+                            ?>
+                        </select>
+                    </form>
+                </div>
+
+
                 <br>
 
                 <div class="post-container">
                     <?php
-                    if ($resultPost) {
-                        while ($row = mysqli_fetch_assoc($resultPost)) {
+                    if ($resultPost1) {
+                        while ($row = mysqli_fetch_assoc($resultPost1)) {
                             $username = htmlspecialchars($row['username']);
                             $title    = htmlspecialchars($row['title']);
                             $content  = htmlspecialchars($row['content']);
@@ -351,7 +387,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                                     <h5>Author: <?php echo $username; ?></h5>
                                     <h6>Category: <?php echo htmlspecialchars($row['category_name']); ?></h6>
                                     <h4 class="card-title"><?php echo $title; ?></h4>
-                                    <p class="card-text"><?php echo $content; ?></p>
+                                    <p class="card-text" style="white-space: pre-wrap;"><?php echo htmlspecialchars($content); ?></p>
                                     <small class="text-muted"><?php echo $sended; ?></small>
 
                                     <!-- Like button -->
@@ -427,7 +463,7 @@ $resultCategories = mysqli_query($con, $sqlCategories);
 
                                     <h6>Category: <?php echo $category; ?></h6>
                                     <h4 class="card-title"><?php echo $title; ?></h4>
-                                    <p class="card-text"><?php echo $content; ?></p>
+                                    <p class="card-text" style="white-space: pre-wrap;"><?php echo htmlspecialchars($content); ?></p>
                                     <small class="text-muted"><?php echo $sended; ?></small>
 
                                     <button class="btn btn-link like-btn">
@@ -476,11 +512,15 @@ $resultCategories = mysqli_query($con, $sqlCategories);
                             <label class="form-label">Content</label>
                             <textarea name="content" rows="5" class="form-control" required></textarea>
                         </div>
+                        <?php
+                        $sqlCategories2 = "SELECT * FROM categories";
+                        $resultCategories2 = mysqli_query($con, $sqlCategories2);
+                        ?>
                         <div class="mb-3">
                             <label class="form-label">Category</label>
                             <select name="category_id" class="form-select" required>
                                 <option value="">-- Select Category --</option>
-                                <?php while ($row = mysqli_fetch_assoc($resultCategories)) { ?>
+                                <?php while ($row = mysqli_fetch_assoc($resultCategories2)) { ?>
                                     <option value="<?php echo $row['category_id']; ?>">
                                         <?php echo htmlspecialchars($row['name']); ?>
                                     </option>

@@ -561,7 +561,7 @@ WHERE posts.is_featured = 'denied'";
                                 <div class="card-body">
                                     <h5>Author: <?php echo htmlspecialchars($username); ?></h5>
                                     <h4 class="card-title"><?php echo htmlspecialchars($title); ?></h4>
-                                    <p class="card-text"><?php echo htmlspecialchars($content); ?></p>
+                                    <p class="card-text" style="white-space: pre-wrap;"><?php echo htmlspecialchars($content); ?></p>
                                     <small class="text-muted"><?php echo $sended; ?></small>
                                 </div>
                             </div>
@@ -601,7 +601,7 @@ WHERE posts.is_featured = 'denied'";
                                 <div class="card-body">
                                     <h5>Author: <?php echo htmlspecialchars($row['username']); ?></h5>
                                     <h4 class="card-title"><?php echo htmlspecialchars($title); ?></h4>
-                                    <p class="card-text"><?php echo htmlspecialchars($content); ?></p>
+                                    <p class="card-text" style="white-space: pre-wrap;"><?php echo htmlspecialchars($content); ?></p>
                                     <small class="text-muted"><?php echo $sended; ?></small>
 
                                     <form method="POST" style="margin-top:10px;">
@@ -738,9 +738,9 @@ WHERE posts.is_featured = 'denied'";
                     ?>
                             <div class="post-card mb-3">
                                 <div class="card-body">
-                                    <h5><?php echo htmlspecialchars($username); ?></h5>
+                                    <h5>Author: <?php echo htmlspecialchars($username); ?></h5>
                                     <h4 class="card-title"><?php echo htmlspecialchars($title); ?></h4>
-                                    <p class="card-text"><?php echo htmlspecialchars($content); ?></p>
+                                    <p class="card-text" style="white-space: pre-wrap;"><?php echo htmlspecialchars($content); ?></p>
                                     <small class="text-muted"><?php echo $sended; ?></small>
 
                                     <form method="POST" style="margin-top:10px; display:flex; gap:10px;">
@@ -760,12 +760,13 @@ WHERE posts.is_featured = 'denied'";
                 </div>
             </div>
             <?php
-            $sqlApp = "SELECT posts.post_id, posts.title, posts.content, posts.created_at, users.username, categories.name AS category_name FROM posts
+            $sqlApp = "SELECT posts.post_id, posts.title, posts.content, posts.created_at,users.username, categories.name AS category_name 
+            FROM posts
             INNER JOIN users ON posts.user_id = users.user_id
-            LEFT JOIN post_categories ON posts.post_id = post_categories.post_id
-            LEFT JOIN categories ON post_categories.category_id = categories.category_id
+            LEFT JOIN categories ON posts.category_id = categories.category_id
             WHERE posts.is_featured = 'approved'
             ORDER BY posts.created_at DESC";
+
 
             $resultApp = mysqli_query($con, $sqlApp);
             ?>
@@ -793,7 +794,7 @@ WHERE posts.is_featured = 'denied'";
                                         Category: <?php echo htmlspecialchars($row['category_name'] ?? 'Uncategorized'); ?>
                                     </h6>
 
-                                    <p class="card-text"><?php echo htmlspecialchars($content); ?></p>
+                                    <p class="card-text" style="white-space: pre-wrap;"><?php echo htmlspecialchars($content); ?></p>
                                     <small class="text-muted"><?php echo $sended; ?></small>
 
                                     <form method="POST" style="margin-top:10px;">
@@ -839,9 +840,9 @@ WHERE posts.is_featured = 'denied'";
                     ?>
                             <div class="post-card mb-3">
                                 <div class="card-body">
-                                    <h5><?php echo htmlspecialchars($username); ?></h5>
+                                    <h5>Author: <?php echo htmlspecialchars($username); ?></h5>
                                     <h4 class="card-title"><?php echo htmlspecialchars($title); ?></h4>
-                                    <p class="card-text"><?php echo htmlspecialchars($content); ?></p>
+                                    <p class="card-text" style="white-space: pre-wrap;"><?php echo htmlspecialchars($content); ?></p>
                                     <small class="text-muted"><?php echo $sended; ?></small>
                                 </div>
                             </div>
