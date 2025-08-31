@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Aug 28, 2025 at 01:50 PM
+-- Generation Time: Aug 31, 2025 at 01:47 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -68,10 +68,7 @@ CREATE TABLE `likes` (
 
 INSERT INTO `likes` (`like_id`, `post_id`, `user_id`, `created_at`) VALUES
 (29, 45, 36, '2025-08-28 20:21:48'),
-(30, 50, 36, '2025-08-28 20:21:50'),
-(34, 50, 35, '2025-08-28 21:26:14'),
-(35, 58, 35, '2025-08-28 21:27:52'),
-(36, 58, 36, '2025-08-28 21:27:59');
+(45, 45, 39, '2025-08-31 21:42:41');
 
 -- --------------------------------------------------------
 
@@ -96,8 +93,13 @@ CREATE TABLE `posts` (
 
 INSERT INTO `posts` (`post_id`, `user_id`, `title`, `content`, `category_id`, `is_featured`, `created_at`, `updated_at`) VALUES
 (45, 35, 'Capturing Moments Through the Lens', 'Photography is more than just pressing a button—it is an art of preserving emotions, stories, and fleeting moments that words often fail to describe. Each click of the shutter freezes a unique perspective, whether it’s the warmth of a smile, the beauty of nature, or the vibrance of everyday life. A single photograph has the power to transport us back to a time and place, allowing us to relive the emotions that were once present.\r\n\r\nBeyond its artistic value, photography also serves as a universal language that connects people across cultures. Images can convey feelings and ideas without the need for translation, making them a powerful medium of expression. Whether you are a professional photographer with advanced equipment or someone who simply enjoys capturing memories with a phone, the essence of photography lies in telling a story that resonates with others.', 4, 'approved', '2025-08-28 19:42:40', '2025-08-28 19:42:45'),
-(50, 36, 'The Role of Research in a Student’s Journey', 'Research plays a vital role in the academic journey of every student. It is not only a requirement for school projects and theses but also a valuable tool for expanding one’s understanding of the world. Through research, students learn how to gather reliable information, analyze data critically, and form well-founded conclusions. This process teaches discipline and develops essential skills such as problem-solving, time management, and communication.\r\n\r\nFrom a student’s perspective, research can feel overwhelming at first, especially when dealing with large volumes of information and complex topics. However, with practice and guidance, it becomes a rewarding experience that sharpens both intellectual and practical skills. It encourages curiosity, allows students to ask meaningful questions, and provides a platform to express their ideas with evidence. Ultimately, research bridges classroom learning with real-world applications.\r\n\r\nMoreover, research empowers students to contribute to their communities. By studying issues that matter—such as education, environment, or technology—students can propose solutions that address real problems. This sense of contribution gives purpose to their studies and motivates them to strive for excellence. In the long run, engaging in research not only enhances academic growth but also prepares students to be innovators and critical thinkers in their future careers.', 2, 'approved', '2025-08-28 20:20:56', '2025-08-28 20:21:20'),
-(58, 35, 'The Art and Power of Writing', 'Writing is one of the most powerful forms of human expression. Through words, we can communicate ideas, emotions, and experiences that transcend time and space. Whether it’s crafting a novel, composing a poem, or writing a simple journal entry, writing allows us to reflect, imagine, and connect with others on a deeper level. It transforms thoughts into tangible forms that can inspire, educate, and entertain.\r\n\r\nMoreover, writing is a skill that develops critical thinking and creativity. When we write, we organize our thoughts, structure arguments, and explore new perspectives. It challenges us to articulate complex ideas clearly and encourages introspection. For students, professionals, and creatives alike, honing writing skills can open doors to new opportunities, deepen understanding, and foster personal growth. Writing is not merely a task; it is a lifelong journey of expression, discovery, and connection.\r\n\r\nBeyond self-expression, writing plays a critical role in preserving knowledge and culture. Throughout history, civilizations have documented their stories, discoveries, and traditions through written records. Writing not only captures the essence of human experience but also enables the transfer of knowledge from one generation to the next. It gives permanence to ideas that might otherwise fade and allows future readers to learn from the past.', 5, 'approved', '2025-08-28 21:27:07', '2025-08-28 21:27:19');
+(72, 35, 'testing 2', 'fsadf asdfsafasdf', 14, 'draft', '2025-08-31 21:17:09', '2025-08-31 21:17:09'),
+(77, 36, 'A Student’s Journey in Taking on a Project', 'Taking on a project as a student feels like stepping into both an exciting and challenging adventure. At first, there’s the thrill of coming up with ideas—sometimes you don’t even know where to start, but the curiosity and eagerness to try something new make it worth it. There’s a mix of nerves and excitement, especially when you realize that the project is your chance to show not just what you’ve learned in class, but also your creativity and determination.\r\n\r\nAlong the way, the journey isn’t always smooth. There are times when things don’t go as planned—like running into problems with research, facing deadlines, or dealing with group misunderstandings. These struggles can feel overwhelming, but they also teach resilience and patience. Little by little, you start learning how to adapt, find solutions, and manage your time better. It’s in those moments that you begin to understand the real value of the project.\r\n\r\nBy the time the project is completed, the sense of fulfillment is unmatched. Looking back at all the effort, late nights, and brainstorming sessions, you realize how much you’ve grown not only academically but also personally. It’s more than just grades—it’s about proving to yourself that you’re capable of overcoming challenges and turning your ideas into something real. That journey, with all its ups and downs, becomes an experience you’ll always carry as a student.', 1, 'approved', '2025-08-31 21:39:03', '2025-08-31 21:39:03'),
+(78, 36, 'Research as a Creative Process', 'Research isn’t just about gathering facts—it’s about curiosity and imagination. It often begins with a simple question, something that sparks interest or challenges the way things are usually understood. Like sketching the first line of a drawing, that question slowly shapes into an idea that sets the direction of the study.\r\n\r\nAs the process continues, creativity shows up in unexpected ways. Finding connections between different sources, rethinking old ideas, and even designing experiments require a kind of problem-solving that feels a lot like creating art. It’s not just following steps—it’s inventing new ways to approach problems and seeing possibilities where others might not.\r\n\r\nWhat makes research exciting is that it combines discipline with creativity. The structure of gathering data and analyzing results is there, but within that framework, there’s room to explore, experiment, and even fail before finding the right path. In the end, research becomes more than a requirement—it’s a way of turning curiosity into something meaningful and original.', 2, 'approved', '2025-08-31 21:40:03', '2025-08-31 21:40:03'),
+(79, 35, 'Art as Expression', 'Art is more than colors on a canvas or lines on paper—it’s a language of its own. Every drawing, design, or piece of work carries a story, a mood, or even just a moment of inspiration. It allows us to express what words sometimes can’t, whether it’s joy, struggle, or the simple beauty of everyday life.\r\n\r\nFor students, art often becomes a safe space to explore imagination. It’s where ideas flow without strict rules, where mistakes can turn into something beautiful, and where creativity feels limitless. Even the smallest doodle in a notebook can spark bigger ideas and reveal something about the way we see the world.\r\n\r\nWhat makes art special is its ability to connect with others. A single painting or design can be understood in so many ways, depending on who’s looking at it. That’s the power of art—it’s personal, yet universal, and it shows that creativity is something we all share.', 3, 'approved', '2025-08-31 21:41:02', '2025-08-31 21:41:02'),
+(80, 35, 'olunteering and Giving Back', 'Volunteering is more than just offering time—it’s about sharing kindness and creating an impact, no matter how small it may seem. Whether it’s helping in a community event, assisting a classmate, or joining an outreach program, each act of service brings people closer together and makes a difference.\r\n\r\nIt’s also a way to grow as a person. Through volunteering, we learn to understand different perspectives, practice empathy, and discover the value of teamwork. It shows us that real fulfillment doesn’t always come from receiving, but from giving and being part of something meaningful.\r\n\r\nWhat makes volunteering powerful is that it creates a chain reaction. A single gesture of help inspires others to do the same, and together, these small actions can build stronger, more compassionate communities.', 7, 'approved', '2025-08-31 21:41:25', '2025-08-31 21:41:25'),
+(81, 39, 'Reflections and Growth', 'Taking time to reflect allows us to pause and look back on what we’ve done, what we’ve learned, and how we’ve changed. It’s in these quiet moments of thought that we recognize both our progress and the areas where we still want to improve.\r\n\r\nReflections help us see meaning in our experiences. A simple challenge faced in school, a project completed, or even a mistake made can teach lessons that go beyond the classroom. By looking back, we gain clarity and prepare ourselves better for what comes next.\r\n\r\nMost importantly, reflections remind us that growth is a continuous process. Each step, whether big or small, adds to the person we are becoming. By embracing both achievements and setbacks, we learn to move forward with more wisdom and purpose.', 9, 'approved', '2025-08-31 21:42:38', '2025-08-31 21:42:38'),
+(82, 39, 'Learning Through Internship', 'Internships provide a valuable opportunity to apply what we’ve learned in real situations. They give us the chance to experience how things work outside the classroom and allow us to connect theory with practice. It’s a space where knowledge turns into action.\r\n\r\nDuring an internship, we also discover new skills and sharpen the ones we already have. Tasks may seem challenging at first, but each one helps build confidence and teaches lessons that can’t always be found in books. Working alongside professionals also offers insights that shape our perspective about future careers.\r\n\r\nMost of all, internships open doors. They show us possibilities, help us build connections, and give us a clearer vision of the path we want to take. Beyond gaining experience, internships prepare us for the responsibilities and opportunities ahead.', 6, 'approved', '2025-08-31 21:43:05', '2025-08-31 21:43:09');
 
 -- --------------------------------------------------------
 
@@ -115,7 +117,13 @@ CREATE TABLE `post_categories` (
 --
 
 INSERT INTO `post_categories` (`post_id`, `category_id`) VALUES
-(45, 4);
+(77, 1),
+(78, 2),
+(79, 3),
+(45, 4),
+(82, 6),
+(80, 7),
+(81, 9);
 
 -- --------------------------------------------------------
 
@@ -139,7 +147,9 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`user_id`, `username`, `email`, `password`, `role`, `created_at`) VALUES
 (10, 'Casey', 'adminkai@school.com', '$2y$10$/J3UvVFpPcBpIw1Kxw/6peOr0e.l2cIFtTFfCWkF.gJj1LO0sm8TS', 'admin', '2025-08-22 11:06:23'),
 (35, 'Casey Dellamas', 'dellamascasey@gmail.com', '$2y$10$KyhCGc4KVcGcJtaQDgzqG.f3QoU23WDNdIv9NJGHrsetl.d2Z/wSu', 'student', '2025-08-27 15:14:10'),
-(36, 'Eunice Jayce', 'eunicejayce@gmail.com', '$2y$10$oceAMKnz6xr1nYBpJmTRoe96UWyhi2aF7G2TFMX8LhaZ5p8LCgbOu', 'student', '2025-08-28 20:19:59');
+(36, 'Eunice Jayce', 'eunicejayce@gmail.com', '$2y$10$VuH..YxgCIq6N3R.zeCB1Ol5kld0E4ZCgqnbF5dbGT1a/UuOSzt9O', 'student', '2025-08-28 20:19:59'),
+(38, 'dummy123', 'dummy@gmail.com', '$2y$10$irPQPIObfy2PsUfb8k6BYO0y6CBazbDDGfPma0SUC894O83NWupyC', 'student', '2025-08-29 16:44:39'),
+(39, 'Christel Jheane', 'cj@gmail.com', '$2y$10$wI3/SgYvkWnnpWFggntKHuXRMXo7kybQeNHrbou5fdcwwohaXfFsG', 'student', '2025-08-31 21:42:03');
 
 --
 -- Indexes for dumped tables
@@ -188,25 +198,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `category_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `likes`
 --
 ALTER TABLE `likes`
-  MODIFY `like_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `like_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `post_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `post_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `user_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- Constraints for dumped tables

@@ -31,9 +31,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_id'])) {
     $post_id = intval($_POST['post_id']);
 
     if (isset($_POST['approve'])) {
-        // Approve
-        $sqlApp = "UPDATE posts SET is_featured = 'approved' WHERE post_id = $post_id";
-        mysqli_query($con, $sqlApp);
+        // Approve post
+        $sqlApp = "UPDATE posts SET is_featured = 'approved' WHERE post_id = ?";
+        $stmtApp = $con->prepare($sqlApp);
+        $stmtApp->bind_param("i", $post_id);
+        $stmtApp->execute();
+        $stmtApp->close();
+
+        // Get the category_id of this post
+        $sqlGetCat = "SELECT category_id FROM posts WHERE post_id = ?";
+        $stmtCat = $con->prepare($sqlGetCat);
+        $stmtCat->bind_param("i", $post_id);
+        $stmtCat->execute();
+        $stmtCat->bind_result($category_id);
+        $stmtCat->fetch();
+        $stmtCat->close();
+
+        // Insert into post_categories if category exists
+        if ($category_id) {
+            $sqlInsertPC = "INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)";
+            $stmtPC = $con->prepare($sqlInsertPC);
+            $stmtPC->bind_param("ii", $post_id, $category_id);
+            $stmtPC->execute();
+            $stmtPC->close();
+        }
+
         header("Location: admin.php?page=pending&approved=1");
         exit();
     } elseif (isset($_POST['deny'])) {
@@ -563,8 +585,18 @@ WHERE posts.is_featured = 'denied'";
                                     <h4 class="card-title"><?php echo htmlspecialchars($title); ?></h4>
                                     <p class="card-text" style="white-space: pre-wrap;"><?php echo htmlspecialchars($content); ?></p>
                                     <small class="text-muted"><?php echo $sended; ?></small>
+
+                                    <!-- Add Delete Button Form -->
+                                    <form method="POST" style="margin-top:10px;">
+                                        <input type="hidden" name="post_id" value="<?php echo $id; ?>">
+                                        <button type="submit" name="delete" class="btn btn-danger"
+                                            onclick="return confirm('Are you sure you want to delete this denied post?')">
+                                            Delete
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
+
                     <?php
                         }
                     } else {
